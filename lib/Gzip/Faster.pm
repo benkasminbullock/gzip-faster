@@ -7,11 +7,13 @@ Gzip::Faster - gzip and gunzip, without the fuss
 =head1 SYNOPSIS
 
     use Gzip::Faster;
+    my $gzipped = gzip ($input);
+    my $roundtrip = gunzip ($gzipped);
+    # $roundtrip is the same as $input
 
 =head1 DESCRIPTION
 
-This module compresses data to the gzip format and decompresses it
-from the format.
+This module compresses to and decompresses from the gzip format.
 
 =head1 FUNCTIONS
 
@@ -56,8 +58,8 @@ The test file is in "examples/benchmark.pl" in the distribution.
 There is also a module called L<Compress::Raw::Zlib> which offers
 access to zlib itself. It may offer improved performance, however I
 have not figured out what it does yet. Its documented way of making a
-gzip compressed object actually returns a deflate-format buffer
-without a gzip header.
+gzip compressed object returns something I cannot understand so I was
+unable to include it in the benchmark.
 
 =head1 BUGS
 
@@ -65,12 +67,16 @@ The module includes functionality to round-trip various Perl flags. I
 applied this to preserving Perl's "utf8" flag. However, the mechanism
 I used trips a browser bug in the Firefox web browser where it
 produces a content encoding error message. Thus this functionality is
-switched off.
+disabled.
+
+=head1 AUTHOR
+
+Ben Bullock <bkb@cpan.org>
 
 =head1 COPYRIGHT AND LICENCE
 
-This software may be used, modified, distributed under the same
-licence as Perl itself.
+Copyright (C) 2014 Ben Bullock. This software may be used, modified,
+distributed under the same licence as Perl itself.
 
 =cut
 
