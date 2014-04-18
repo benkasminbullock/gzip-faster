@@ -21,7 +21,7 @@
 
 /* The following code works perfectly OK, but setting the "extra"
    field in a gzip header trips bugs in some browsers (FireFox to be
-   precise, Internet Explorer and Chrome have no problem with
+   precise, Internet Explorer, Opera, and Chrome have no problem with
    this). */
 
 /* #define COPY_PERL */
@@ -38,6 +38,11 @@
 #define GZIP_PERL_LENGTH 1
 #define EXTRA_LENGTH GZIP_PERL_ID_LENGTH + GZIP_PERL_LENGTH
 #define GZIP_PERL_UTF8 (1<<0)
+/* Add more Perl flags here like 
+
+#define SOMETHING (1<<1)
+
+etc. */
 
 #endif /* def COPY_PERL */
 
@@ -79,6 +84,7 @@ gzip_faster (SV * plain)
 			     8, Z_DEFAULT_STRATEGY));
 
 #ifdef COPY_PERL
+
     memcpy (extra, GZIP_PERL_ID, GZIP_PERL_ID_LENGTH);
     extra[GZIP_PERL_ID_LENGTH] = 0;
     if (SvUTF8 (plain)) {
@@ -87,7 +93,9 @@ gzip_faster (SV * plain)
     header.extra = extra;
     header.extra_len = EXTRA_LENGTH;
     CALL_ZLIB (deflateSetHeader (& strm, & header));
+
 #endif /* def COPY_PERL */
+
     /* newSV (0) gets us "uninitialized in subroutine entry" stuff. */
 
     zipped = newSVpv ("", 0);
