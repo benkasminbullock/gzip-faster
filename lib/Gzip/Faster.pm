@@ -16,7 +16,7 @@ Gzip::Faster - abstract here.
 package Gzip::Faster;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw//;
+@EXPORT_OK = qw/gzip gunzip/;
 %EXPORT_TAGS = (
     all => \@EXPORT_OK,
 );
