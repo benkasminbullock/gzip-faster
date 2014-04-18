@@ -8,12 +8,16 @@ use Gzip::Faster qw/gzip gunzip/;
 my $gzipped_empty = gzip ('');
 is ($gzipped_empty, undef, "Empty input results in the undefined value");
 
-my $zipped2 = gzip ('buggles');
 my $tests = 'test this';
 my $zipped = gzip ($tests);
 my $unzipped = gunzip ($zipped);
 is ($unzipped, $tests, "round trip");
-
+# Test for ungzipped input in gunzip.
+eval {
+    gunzip ('ragamuffin');
+};
+ok ($@, "error with ungzipped input");
+like ($@, qr/not gzipped/);
 TODO: {
     local $TODO = 'not implemented yet';
 };
