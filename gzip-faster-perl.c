@@ -19,7 +19,22 @@
 		   #x, zlib_status);				 \
 	}							 \
 
-#define CHUNK 0x4000
+#define COPY_PERL
+
+#ifdef COPY_PERL
+
+/* See "http://www.gzip.org/zlib/rfc-gzip.html". */
+
+#define GZIP_PERL_ID "GF\1\0"
+#define GZIP_PERL_ID_LENGTH 4
+
+/* Perl stuff. */
+
+#define GZIP_PERL_LENGTH 1
+#define EXTRA_LENGTH GZIP_PERL_ID_LENGTH + GZIP_PERL_LENGTH
+#define GZIP_PERL_UTF8 (1<<0)
+
+#endif /* def COPY_PERL */
 
 static SV *
 gzip_faster (SV * plain)
@@ -32,6 +47,13 @@ gzip_faster (SV * plain)
     int zlib_status;
     /* This holds the stuff. */
     unsigned char out_buffer[CHUNK];
+
+#ifdef COPY_PERL
+
+    gz_header header = {0};
+    unsigned char extra[EXTRA_LENGTH];
+
+#endif /* COPY_PERL */
 
     plain_char = SvPV (plain, plain_length);
 
@@ -51,6 +73,16 @@ gzip_faster (SV * plain)
 			     windowBits + DEFLATE_ENABLE_ZLIB_GZIP,
 			     8, Z_DEFAULT_STRATEGY));
 
+#ifdef COPY_PERL
+    memcpy (extra, GZIP_PERL_ID, GZIP_PERL_ID_LENGTH);
+    extra[GZIP_PERL_ID_LENGTH] = 0;
+    if (SvUTF8 (plain)) {
+	extra[GZIP_PERL_ID_LENGTH] |= GZIP_PERL_UTF8;
+    }
+    header.extra = extra;
+    header.extra_len = EXTRA_LENGTH;
+    CALL_ZLIB (deflateSetHeader (& strm, & header));
+#endif /* def COPY_PERL */
     /* newSV (0) gets us "uninitialized in subroutine entry" stuff. */
 
     zipped = newSVpv ("", 0);
@@ -88,6 +120,13 @@ gunzip_faster (SV * zipped)
     /* The message from zlib. */
     int zlib_status;
 
+#ifdef COPY_PERL
+
+    gz_header header;
+    unsigned char extra[EXTRA_LENGTH];
+
+#endif /* def COPY_PERL */
+
     zipped_char = SvPV (zipped, zipped_length);
 
     if (zipped_length == 0) {
@@ -102,6 +141,14 @@ gunzip_faster (SV * zipped)
     strm.opaque = Z_NULL;
 
     CALL_ZLIB (inflateInit2 (& strm, windowBits + INFLATE_ENABLE_ZLIB_GZIP));
+
+#ifdef COPY_PERL
+
+    header.extra = extra;
+    header.extra_max = EXTRA_LENGTH;
+    inflateGetHeader (& strm, & header);
+
+#endif
 
     /* newSV (0) gets us "uninitialized in subroutine entry" stuff. */
 
@@ -123,6 +170,20 @@ gunzip_faster (SV * zipped)
 	croak ("Zlib did not come to the end of the string");
     }
     inflateEnd (& strm);
+
+#ifdef COPY_PERL
+
+    if (strncmp ((const char *) header.extra, GZIP_PERL_ID,
+		 GZIP_PERL_ID_LENGTH) == 0) {
+	unsigned is_utf8;
+	is_utf8 = header.extra[GZIP_PERL_ID_LENGTH] & GZIP_PERL_UTF8;
+	if (is_utf8) {
+	    SvUTF8_on (plain);
+	}
+    }
+
+#endif /* def COPY_PERL */
+
     return plain;
 }
 
