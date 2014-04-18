@@ -54,7 +54,10 @@ Here is a comparison of gunzip (decompression) only:
 The test file is in "examples/benchmark.pl" in the distribution.
 
 There is also a module called L<Compress::Raw::Zlib> which offers
-access to zlib itself. It may offer improved performance. 
+access to zlib itself. It may offer improved performance, however I
+have not figured out what it does yet. Its documented way of making a
+gzip compressed object actually returns a deflate-format buffer
+without a gzip header.
 
 =head1 BUGS
 
