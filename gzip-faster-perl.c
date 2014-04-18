@@ -19,7 +19,12 @@
 		   #x, zlib_status);				 \
 	}							 \
 
-#define COPY_PERL
+/* The following code works perfectly OK, but setting the "extra"
+   field in a gzip header trips bugs in some browsers (FireFox to be
+   precise, Internet Explorer and Chrome have no problem with
+   this). */
+
+/* #define COPY_PERL */
 
 #ifdef COPY_PERL
 
