@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.03 2014-04-18
+
+* Build script cleanup
+
 0.02 2014-04-18
 
 * Documentation, benchmark.
