@@ -69,14 +69,11 @@ I used trips a browser bug in the Firefox web browser where it
 produces a content encoding error message. Thus this functionality is
 disabled.
 
-=head1 AUTHOR
+=head1 AUTHOR, COPYRIGHT AND LICENCE
 
-Ben Bullock <bkb@cpan.org>
-
-=head1 COPYRIGHT AND LICENCE
-
-Copyright (C) 2014 Ben Bullock. This software may be used, modified,
-distributed under the same licence as Perl itself.
+Ben Bullock <bkb@cpan.org>. Copyright (C) 2014 Ben Bullock. This
+software may be used, modified, distributed under the same licence as
+Perl itself.
 
 =cut
 
