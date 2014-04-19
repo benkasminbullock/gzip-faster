@@ -48,14 +48,12 @@ EOF
 my $out;
 my $round;
 
-my $count = 50000;
+my $count = 10000;
 
 cmpthese ($count, {
     'IO::Compress::Gzip' => 'io_comp_gzip ()',
     'Gzip::Faster' => 'gzip_faster ()',
 });
-
-
 
 sub io_comp_gzip
 {

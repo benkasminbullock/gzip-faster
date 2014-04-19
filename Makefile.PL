@@ -2,6 +2,11 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
+use lib qw(inc);
+use Devel::CheckLib;
+
+check_lib_or_exit(lib => 'z', header => 'zlib.h');
+
 my $pm = 'lib/Gzip/Faster.pm';
 my $github = 'github.com/benkasminbullock/gzip-faster';
 my $repo = "https://$github";

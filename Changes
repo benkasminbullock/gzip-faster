@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.04 2014-04-19
+
+* Add a check to "Makefile.PL" that zlib is present.
+
 0.03 2014-04-18
 
 * Build script cleanup
