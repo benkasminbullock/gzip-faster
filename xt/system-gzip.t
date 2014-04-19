@@ -20,13 +20,17 @@ my $fgz = "$f.gz";
 open my $out, ">:raw", $fgz or die $!;
 print $out $z;
 close $out;
-my $status = system ("gzip -d $fgz");
+my $status = system ("gzip --force --keep -d $fgz");
 ok ($status == 0, "gzip completed OK");
 ok (-f $f, "made file $f");
 open my $in, "<", $f or die $!;
 local $/;
 my $guffback = <$in>;
 is ($guffback, $guff, "round trip via system gzip");
+
+my $buggles = gunzip_file ($fgz);
+is ($buggles, $guff, "gunzip_file returns correct contents");
+
 for my $file ($f, $fgz) {
     if (-f $file) {
 	unlink $file;
