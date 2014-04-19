@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+use FindBin;
 use Test::More;
 use Gzip::Faster;
 
@@ -39,6 +40,19 @@ if (utf8::is_utf8 ($iruka)) {
     die "Sanity check failed";
 }
 ok (! utf8::is_utf8 (gunzip (gzip ($iruka))), "no UTF-8 round trip");
+
+my $f = "$FindBin::Bin/gzip-faster.t";
+my $fgz = "$f.gz";
+my $zippedf = gzip_file ($f);
+ok ($zippedf);
+open my $out, ">:raw", $fgz or die $!;
+print $out $zippedf;
+close $out or die $!;
+my $plain = gunzip_file ($fgz);
+ok ($plain);
+if (-f $fgz) {
+    unlink ($fgz);
+}
 
 done_testing ();
 # Local variables:
