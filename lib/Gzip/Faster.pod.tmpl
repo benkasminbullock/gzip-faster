@@ -1,0 +1,111 @@
+=encoding UTF-8
+
+=head1 NAME
+
+Gzip::Faster - gzip and gunzip, without the fuss
+
+=head1 SYNOPSIS
+
+    use Gzip::Faster;
+    my $gzipped = gzip ($input);
+    my $roundtrip = gunzip ($gzipped);
+    # $roundtrip is the same as $input
+
+=head1 DESCRIPTION
+
+This module compresses to and decompresses from the gzip format.
+
+=head1 FUNCTIONS
+
+=head2 gzip
+
+    my $zipped = gzip ($stuff);
+
+This compresses C<$stuff> into the gzip format. The return value is
+the compressed version of $stuff.
+
+=head2 gunzip
+
+    my $stuff = gunzip ($zipped);
+
+This uncompresses C<$zipped> and returns the result of the
+uncompression. It returns the undefined value if C<$zipped> is the
+undefined value or an empty string. Otherwise, it throws a fatal error
+if C<$zipped> is not in the gzip format.  =head2 gzip_file
+
+=head2 gzip_file
+
+    my $zipped = gzip_file ('file');
+
+This reads the contents of F<file> into memory and then runs L</gzip>
+on the file's contents. The return value and the possible errors are
+the same as L</gzip>, plus this may also throw an error if C<open>
+fails.
+
+=head2 gunzip_file
+
+    my $stuff = gunzip_file ('file.gz');
+
+This reads the contents of F<file.gz> into memory and then runs
+L</gunzip> on the file's contents. The return value and the possible
+errors are the same as L</gunzip>, plus this may also throw an error
+if C<open> fails.
+
+=head1 PERFORMANCE
+
+This section compares the performance of Gzip::Faster with
+L<IO::Compress::Gzip> and L<IO::Uncompress::Gunzip>. According to my
+results, Gzip::Faster is four times faster to load, nine times faster
+to compress, and more than twenty times faster to uncompress. Round
+trips are about ten times faster with Gzip::Faster.
+
+Here is a comparison of load times:
+
+           Rate Load IOUG Load IOCG   Load GF
+    Load IOUG 25.0/s        --       -4%      -81%
+    Load IOCG 26.1/s        4%        --      -80%
+    Load GF    134/s      435%      413%        --
+
+Here is a comparison of a round-trip:
+
+                          Rate IO::Compress::Gzip       Gzip::Faster
+    IO::Compress::Gzip  1199/s                 --               -91%
+    Gzip::Faster       12800/s               968%                 --
+
+Here is a comparison of gzip (compression) only:
+
+                          Rate IO::Compress::Gzip       Gzip::Faster
+    IO::Compress::Gzip  2355/s                 --               -87%
+    Gzip::Faster       17582/s               647%                 --
+
+
+Here is a comparison of gunzip (decompression) only:
+
+                              Rate IO::Uncompress::Gunzip           Gzip::Faster
+    IO::Uncompress::Gunzip  2739/s                     --                   -96%
+    Gzip::Faster           67368/s                  2360%                     --
+
+The test file is in "examples/benchmark.pl" in the distribution.
+
+There is also a module called L<Compress::Raw::Zlib> which offers
+access to zlib itself. It may offer improved performance, however I
+have not figured out what it does yet. Its documented way of making a
+gzip compressed object returns something I cannot understand so I was
+unable to include it in the benchmark.
+
+=head1 BUGS
+
+The module includes functionality to round-trip various Perl flags. I
+applied this to preserving Perl's "utf8" flag. However, the mechanism
+I used trips a browser bug in the Firefox web browser where it
+produces a content encoding error message. Thus this functionality is
+disabled.
+
+=head1 AUTHOR, COPYRIGHT AND LICENCE
+
+Ben Bullock <bkb@cpan.org>. Copyright (C) 2014 Ben Bullock. This
+software may be used, modified, distributed under the same licence as
+Perl itself.
+
+=cut
+

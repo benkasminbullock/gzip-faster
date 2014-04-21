@@ -10,3 +10,4 @@ MYMETA..*
 ^Gzip-Faster-[0-9\.]+\.tar\.gz$
 ^Faster.(?:c|o|bs)$
 ^xt/*$
+^lib/Gzip/Faster\.pod\.tmpl$

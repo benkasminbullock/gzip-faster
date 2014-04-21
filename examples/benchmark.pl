@@ -6,6 +6,7 @@ use IO::Compress::Gzip 'gzip';
 use IO::Uncompress::Gunzip 'gunzip';
 use Gzip::Faster;
 use Compress::Raw::Zlib;
+use FindBin;
 
 my $in = <<EOF;
 To be, or not to be: that is the question:
@@ -48,7 +49,40 @@ EOF
 my $out;
 my $round;
 
-my $count = 10000;
+# IO::Compress::Gzip and its partner are very slow to load, so $count
+# should not be a big number.
+
+my $count = 500;
+
+cmpthese ($count, {
+    'Load IOCG' => 'load_io_comp_gzip ()',
+    'Load IOUG' => 'load_io_uncomp_gunzip ()',
+    'Load GF' => 'load_gzip_faster ();',
+# Compare to get a comparison with just the perl interpreter.
+#    'do nothing' => 'do_nothing ();',
+});
+
+sub load_io_comp_gzip
+{
+    system ("perl $FindBin::Bin/load_io_comp_gzip");
+}
+
+sub load_io_uncomp_gunzip
+{
+    system ("perl $FindBin::Bin/load_io_uncomp_gunzip");
+}
+
+sub load_gzip_faster
+{
+    system ("perl $FindBin::Bin/load_io_gzip_faster");
+}
+
+sub do_nothing
+{
+    system ("perl $FindBin::Bin/do_nothing");
+}
+
+$count = 50000;
 
 cmpthese ($count, {
     'IO::Compress::Gzip' => 'io_comp_gzip ()',

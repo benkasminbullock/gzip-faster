@@ -8,13 +8,14 @@ use Devel::CheckLib;
 check_lib_or_exit(lib => 'z', header => 'zlib.h');
 
 my $pm = 'lib/Gzip/Faster.pm';
+my $pod = 'lib/Gzip/Faster.pod';
 my $github = 'github.com/benkasminbullock/gzip-faster';
 my $repo = "https://$github";
 
 WriteMakefile (
     NAME => 'Gzip::Faster',
     VERSION_FROM => $pm,
-    ABSTRACT_FROM => $pm,
+    ABSTRACT_FROM => $pod,
     AUTHOR => 'Ben Bullock <bkb@cpan.org>',
     LICENSE => 'perl',
     PREREQ_PM => {
