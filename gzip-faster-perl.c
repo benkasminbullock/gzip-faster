@@ -11,10 +11,8 @@
 
 #define CALL_ZLIB(x)						 \
 	zlib_status = x;					 \
-	if (zlib_status == -3) {				 \
-	    croak ("input data is not gzipped");		 \
-	}							 \
 	if (zlib_status < 0) {					 \
+	    deflateEnd (& strm);				 \
 	    croak ("zlib call %s returned a bad status %d",	 \
 		   #x, zlib_status);				 \
 	}							 \
@@ -104,7 +102,25 @@ gzip_faster (SV * plain)
 	unsigned int have;
 	strm.avail_out = CHUNK;
 	strm.next_out = out_buffer;
-	CALL_ZLIB (deflate (& strm, Z_FINISH));
+	zlib_status = deflate (& strm, Z_FINISH);
+	switch (zlib_status) {
+	case Z_OK:
+	case Z_STREAM_END:
+	case Z_BUF_ERROR:
+	    /* Keep on chugging. */
+	    break;
+
+	case Z_STREAM_ERROR:
+	    deflateEnd (& strm);
+	    /* This is supposed to never happen, but just in case it
+	       does. */
+	    croak ("Z_STREAM_ERROR from zlib");
+
+	default:
+	    deflateEnd (& strm);
+	    croak ("Unknown status %d from deflate", zlib_status);
+	    break;
+	}
 	have = CHUNK - strm.avail_out;
 	sv_catpvn (zipped, (const char *) out_buffer, have);
     }
@@ -171,7 +187,27 @@ gunzip_faster (SV * zipped)
 	unsigned int have;
 	strm.avail_out = CHUNK;
 	strm.next_out = out_buffer;
-	CALL_ZLIB (inflate (& strm, Z_FINISH));
+	zlib_status = inflate (& strm, Z_FINISH);
+	switch (zlib_status) {
+	case Z_OK:
+	case Z_STREAM_END:
+	case Z_BUF_ERROR:
+	    break;
+
+	case Z_DATA_ERROR:
+	    croak ("Data input to gunzip is not in gzip format");
+	    break;
+
+	case Z_MEM_ERROR:
+	    croak ("Out of memory in gunzip");
+
+	case Z_STREAM_ERROR:
+	    croak ("Internal error in zlib");
+
+	default:
+	    croak ("Unknown status %d from inflate", zlib_status);
+	    break;
+	}
 	have = CHUNK - strm.avail_out;
 	sv_catpvn (plain, (const char *) out_buffer, have);
     }

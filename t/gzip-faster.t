@@ -18,7 +18,8 @@ eval {
     gunzip ('ragamuffin');
 };
 ok ($@, "error with ungzipped input");
-like ($@, qr/not gzipped/, "got correct error message");
+like ($@, qr/Data input to gunzip is not in gzip format/,
+      "got correct error message");
 
 
 TODO: {
@@ -54,7 +55,13 @@ if (-f $fgz) {
     unlink ($fgz);
 }
 
+# This tests that Z_BUF_ERROR is ignored. The file "index.html.gz" is
+# deliberately chosen to be a file which trips a Z_BUF_ERROR.
+
+gunzip_file ("$FindBin::Bin/index.html.gz");
+
 done_testing ();
+
 # Local variables:
 # mode: perl
 # End:

@@ -96,7 +96,7 @@ require Exporter;
 use warnings;
 use strict;
 use Carp;
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 require XSLoader;
 XSLoader::load ('Gzip::Faster', $VERSION);
 

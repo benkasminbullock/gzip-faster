@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.05 2014-04-21
+
+* Correct handling of Z_BUF_ERROR
+
 0.04 2014-04-19
 
 * Add a check to "Makefile.PL" that zlib is present.
