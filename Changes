@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.07 2014-04-21
+
+* Better documentation
+
 0.06 2014-04-21
 
 * Documentation of gzip_file/gunzip_file

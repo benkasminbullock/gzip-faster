@@ -49,6 +49,12 @@ EOF
 my $out;
 my $round;
 
+print "\$IO::Compress::Gzip::VERSION = $IO::Compress::Gzip::VERSION\n";
+print "\$IO::Uncompress::Gunzip::VERSION = $IO::Uncompress::Gunzip::VERSION\n";
+print "\$Gzip::Faster::VERSION = $Gzip::Faster::VERSION\n";
+
+splitline ();
+
 # IO::Compress::Gzip and its partner are very slow to load, so $count
 # should not be a big number.
 
@@ -82,6 +88,8 @@ sub do_nothing
     system ("perl $FindBin::Bin/do_nothing");
 }
 
+splitline ();
+
 $count = 50000;
 
 cmpthese ($count, {
@@ -105,6 +113,8 @@ sub gzip_faster
 #    die if $in ne $round;
 }
 
+splitline ();
+
 cmpthese ($count, {
     'IO::Compress::Gzip' => 'io_comp_gzip_only ()',
     'Gzip::Faster' => 'gzip_faster_gzip_only ()',
@@ -119,6 +129,8 @@ sub gzip_faster_gzip_only
 {
     $out = Gzip::Faster::gzip ($in);
 }
+
+splitline ();
 
 cmpthese ($count, {
     'IO::Uncompress::Gunzip' => 'io_comp_gunzip_only ()',
@@ -135,3 +147,8 @@ sub gzip_faster_gunzip_only
     my $round = Gzip::Faster::gunzip ($out);
 }
 
+sub splitline
+{
+    print "-" x 50;
+    print "\n";
+}

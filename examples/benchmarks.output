@@ -1,0 +1,20 @@
+$IO::Compress::Gzip::VERSION = 2.060
+$IO::Uncompress::Gunzip::VERSION = 2.060
+$Gzip::Faster::VERSION = 0.07
+--------------------------------------------------
+            Rate Load IOUG Load IOCG   Load GF
+Load IOUG 25.1/s        --       -4%      -81%
+Load IOCG 26.2/s        4%        --      -80%
+Load GF    132/s      425%      403%        --
+--------------------------------------------------
+                      Rate IO::Compress::Gzip       Gzip::Faster
+IO::Compress::Gzip  1268/s                 --               -90%
+Gzip::Faster       12623/s               896%                 --
+--------------------------------------------------
+                      Rate IO::Compress::Gzip       Gzip::Faster
+IO::Compress::Gzip  2490/s                 --               -86%
+Gzip::Faster       17680/s               610%                 --
+--------------------------------------------------
+                          Rate IO::Uncompress::Gunzip           Gzip::Faster
+IO::Uncompress::Gunzip  2722/s                     --                   -96%
+Gzip::Faster           67368/s                  2375%                     --
