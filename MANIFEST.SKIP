@@ -9,7 +9,7 @@ MYMETA..*
 ^Gzip-Faster-[0-9\.]+/$
 ^Gzip-Faster-[0-9\.]+\.tar\.gz$
 ^Faster.(?:c|o|bs)$
-^xt/*$
+^xt/.*$
 ^lib/Gzip/Faster\.pod\.tmpl$
 ^make-pod\.pl$
 file\.gz$
