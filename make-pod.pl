@@ -12,7 +12,14 @@ my %vars;
 
 my $tt = Template->new (
     ABSOLUTE => 1,
+    FILTERS => {
+        xtidy => [
+            \& xtidy,
+            0,
+        ],
+    },
     INCLUDE_PATH => [
+	"$FindBin::Bin/examples",
     ],
 );
 
@@ -30,5 +37,30 @@ $e = <$input>;
 close $input or die $!;
 my @fields = qw/versions load round gzip gunzip/;
 @vars{@fields} = split /-{50}/, $e;
+chmod 0644, $pod;
 $tt->process ("$pod.tmpl", \%vars, $pod) or die '' . $tt->error ();
+chmod 0444, $pod;
+exit;
 
+sub xtidy
+{
+    my ($text) = @_;
+
+    # Remove shebang.
+
+    $text =~ s/^#!.*$//m;
+
+    # Remove sobvious.
+
+    $text =~ s/use\s+(strict|warnings);\s+//g;
+
+    # Replace tabs with spaces.
+
+    $text =~ s/ {0,7}\t/        /g;
+
+    # Add indentation.
+
+    $text =~ s/^(.*)/    $1/gm;
+
+    return $text;
+}

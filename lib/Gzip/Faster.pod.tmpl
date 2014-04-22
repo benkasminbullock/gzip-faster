@@ -6,10 +6,7 @@ Gzip::Faster - gzip and gunzip, without the fuss
 
 =head1 SYNOPSIS
 
-    use Gzip::Faster;
-    my $gzipped = gzip ($input);
-    my $roundtrip = gunzip ($gzipped);
-    # $roundtrip is the same as $input
+[% INCLUDE "synopsis.pl" | xtidy %]
 
 =head1 DESCRIPTION
 
@@ -50,6 +47,16 @@ This reads the contents of F<file.gz> into memory and then runs
 L</gunzip> on the file's contents. The return value and the possible
 errors are the same as L</gunzip>, plus this may also throw an error
 if C<open> fails.
+
+=head2 gzip_to_file
+
+    gzip_to_file ($plain, 'file.gz');
+
+This compresses C<$plain> in memory using L</gzip> and writes the
+compressed content to 'file.gz'. There is no return value. The errors
+are the same as L</gzip>, plus this may also throw an error if C<open>
+fails. As of this version, it does not write any gzip header
+information to F<file.gz>.
 
 =head1 PERFORMANCE
 
