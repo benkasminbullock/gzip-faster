@@ -114,7 +114,7 @@ gzip_faster (SV * plain)
 	    deflateEnd (& strm);
 	    /* This is supposed to never happen, but just in case it
 	       does. */
-	    croak ("Z_STREAM_ERROR from zlib");
+	    croak ("Z_STREAM_ERROR from zlib during deflate");
 
 	default:
 	    deflateEnd (& strm);
@@ -195,16 +195,20 @@ gunzip_faster (SV * zipped)
 	    break;
 
 	case Z_DATA_ERROR:
+	    inflateEnd (& strm);
 	    croak ("Data input to gunzip is not in gzip format");
 	    break;
 
 	case Z_MEM_ERROR:
+	    inflateEnd (& strm);
 	    croak ("Out of memory in gunzip");
 
 	case Z_STREAM_ERROR:
+	    inflateEnd (& strm);
 	    croak ("Internal error in zlib");
 
 	default:
+	    inflateEnd (& strm);
 	    croak ("Unknown status %d from inflate", zlib_status);
 	    break;
 	}

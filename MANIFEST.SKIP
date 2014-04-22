@@ -11,3 +11,4 @@ MYMETA..*
 ^Faster.(?:c|o|bs)$
 ^xt/*$
 ^lib/Gzip/Faster\.pod\.tmpl$
+^make-pod\.pl$
