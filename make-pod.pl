@@ -50,6 +50,14 @@ sub xtidy
 
     $text =~ s/^#!.*$//m;
 
+    # Remove comments
+
+    $text =~ s/^#.*$//m;
+
+    # Remove random generator
+
+    $text =~ s/^my \$input.*$//m;
+
     # Remove sobvious.
 
     $text =~ s/use\s+(strict|warnings);\s+//g;
