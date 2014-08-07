@@ -21,26 +21,25 @@ ok ($@, "error with ungzipped input");
 like ($@, qr/Data input to gunzip is not in gzip format/,
       "got correct error message");
 
+# TODO: {
+#     local $TODO = 'This functionality is disabled due to a FireFox bug';
+#     use utf8;
+#     my $kujira = '鯨';
+#     if (! utf8::is_utf8 ($kujira)) {
+# 	die "Sanity check failed";
+#     }
+#     ok (utf8::is_utf8 (gunzip (gzip ($kujira))), "UTF-8 round trip");
 
-TODO: {
-    local $TODO = 'This functionality is disabled due to a FireFox bug';
-    use utf8;
-    my $kujira = '鯨';
-    if (! utf8::is_utf8 ($kujira)) {
-	die "Sanity check failed";
-    }
-    ok (utf8::is_utf8 (gunzip (gzip ($kujira))), "UTF-8 round trip");
+# };
 
-};
+# # This tests the converse of the above.
 
-# This tests the converse of the above.
-
-no utf8;
-my $iruka = '海豚';
-if (utf8::is_utf8 ($iruka)) {
-    die "Sanity check failed";
-}
-ok (! utf8::is_utf8 (gunzip (gzip ($iruka))), "no UTF-8 round trip");
+# no utf8;
+# my $iruka = '海豚';
+# if (utf8::is_utf8 ($iruka)) {
+#     die "Sanity check failed";
+# }
+# ok (! utf8::is_utf8 (gunzip (gzip ($iruka))), "no UTF-8 round trip");
 
 my $f = "$FindBin::Bin/gzip-faster.t";
 my $fgz = "$f.gz";
