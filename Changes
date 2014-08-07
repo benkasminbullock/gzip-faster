@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.09 2014-08-07
+
+* Include Compress::Raw::Zlib in benchmarks.
+
 0.08 2014-04-22
 
 * New function "gzip_to_file" (write data to file in gzipped format).
