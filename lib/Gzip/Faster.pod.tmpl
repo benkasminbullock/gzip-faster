@@ -61,9 +61,9 @@ information to F<file.gz>.
 =head1 PERFORMANCE
 
 This section compares the performance of Gzip::Faster with
-L<IO::Compress::Gzip> and L<IO::Uncompress::Gunzip>. According to my
+L<IO::Compress::Gzip>/L<IO::Uncompress::Gunzip> and L<Compress::Raw::Zlib>. According to my
 results, Gzip::Faster is about five times faster to load, seven times
-faster to compress, and twenty-five times faster to uncompress. Round
+faster to compress, and twenty-five times faster to uncompress than the IO::Uncompress modules. Round
 trips are about ten times faster with Gzip::Faster.
 
 The versions used in this test are as follows:
@@ -87,12 +87,6 @@ Here is a comparison of gunzip (decompression) only:
 [% gunzip | indent (4) %]
 
 The test file is in "examples/benchmark.pl" in the distribution.
-
-There is also a module called L<Compress::Raw::Zlib> which offers
-access to zlib itself. It may offer improved performance, however I
-have not figured out what it does yet. Its documented way of making a
-gzip compressed object returns something I cannot understand so I was
-unable to include it in the benchmark.
 
 =head1 BUGS
 

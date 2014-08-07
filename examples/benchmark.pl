@@ -63,6 +63,7 @@ my $count = 500;
 cmpthese ($count, {
     'Load IOCG' => 'load_io_comp_gzip ()',
     'Load IOUG' => 'load_io_uncomp_gunzip ()',
+    'Load CRZ' => 'load_comp_raw_zlib ();',
     'Load GF' => 'load_gzip_faster ();',
 # Compare to get a comparison with just the perl interpreter.
 #    'do nothing' => 'do_nothing ();',
@@ -78,9 +79,14 @@ sub load_io_uncomp_gunzip
     system ("perl $FindBin::Bin/load_io_uncomp_gunzip");
 }
 
+sub load_comp_raw_zlib
+{
+    system ("perl $FindBin::Bin/load_comp_raw_zlib");
+}
+
 sub load_gzip_faster
 {
-    system ("perl $FindBin::Bin/load_io_gzip_faster");
+    system ("perl $FindBin::Bin/load_gzip_faster");
 }
 
 sub do_nothing
@@ -94,6 +100,7 @@ $count = 50000;
 
 cmpthese ($count, {
     'IO::Compress::Gzip' => 'io_comp_gzip ()',
+    'Compress::Raw::Zlib' => 'comp_raw_zlib ()',
     'Gzip::Faster' => 'gzip_faster ()',
 });
 
@@ -101,6 +108,20 @@ sub io_comp_gzip
 {
     IO::Compress::Gzip::gzip \$in, \$out;
     IO::Uncompress::Gunzip::gunzip \$out, \$round;
+# Comment out to get better benchmark. Uncomment to check validity.
+#    die if $in ne $round;
+}
+
+sub comp_raw_zlib
+{
+    my $buf;
+    my $dx = Compress::Raw::Zlib::Deflate->new( -WindowBits => WANT_GZIP )
+        or die "Cannot create a deflation stream\n";
+    ( $dx->deflate($in, $buf) == Z_OK ) ? $out = $buf : die "deflation failed\n";
+    ( $dx->flush($buf) == Z_OK ) ? $out .= $buf : die "deflation failed\n";
+    my $ix = Compress::Raw::Zlib::Inflate->new( -WindowBits => WANT_GZIP )
+        or die "Cannot create a inflation stream\n";
+    $_ == Z_OK or $_ == Z_STREAM_END or die "inflation failed\n" for $ix->inflate($out, $round);
 # Comment out to get better benchmark. Uncomment to check validity.
 #    die if $in ne $round;
 }
@@ -117,12 +138,22 @@ splitline ();
 
 cmpthese ($count, {
     'IO::Compress::Gzip' => 'io_comp_gzip_only ()',
+    'Compress::Raw::Zlib::Deflate' => 'comp_raw_zlib_def_only ()',
     'Gzip::Faster' => 'gzip_faster_gzip_only ()',
 });
 
 sub io_comp_gzip_only
 {
     IO::Compress::Gzip::gzip \$in, \$out;
+}
+
+sub comp_raw_zlib_def_only
+{
+    my $buf;
+    my $dx = Compress::Raw::Zlib::Deflate->new( -WindowBits => WANT_GZIP )
+        or die "Cannot create a deflation stream\n";
+    ( $dx->deflate($in, $buf) == Z_OK ) ? $out = $buf : die "deflation failed\n";
+    ( $dx->flush($buf) == Z_OK ) ? $out .= $buf : die "deflation failed\n";
 }
 
 sub gzip_faster_gzip_only
@@ -134,12 +165,21 @@ splitline ();
 
 cmpthese ($count, {
     'IO::Uncompress::Gunzip' => 'io_comp_gunzip_only ()',
+    'Compress::Raw::Zlib::Inflate' => 'comp_raw_zlib_inf_only ()',
     'Gzip::Faster' => 'gzip_faster_gunzip_only ()',
 });
 
 sub io_comp_gunzip_only
 {
     IO::Uncompress::Gunzip::gunzip \$out, \$round;
+}
+
+sub comp_raw_zlib_inf_only
+{
+    my $copy = $out;
+    my $ix = Compress::Raw::Zlib::Inflate->new( -WindowBits => WANT_GZIP )
+        or die "Cannot create a inflation stream\n";
+    $_ == Z_OK or $_ == Z_STREAM_END or die "inflation failed: $_\n" for $ix->inflate($copy, $round);
 }
 
 sub gzip_faster_gunzip_only
