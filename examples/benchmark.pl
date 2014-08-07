@@ -80,7 +80,7 @@ sub load_io_uncomp_gunzip
 
 sub load_gzip_faster
 {
-    system ("perl $FindBin::Bin/load_io_gzip_faster");
+    system ("perl $FindBin::Bin/load_gzip_faster");
 }
 
 sub do_nothing
