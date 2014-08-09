@@ -61,10 +61,16 @@ information to F<file.gz>.
 =head1 PERFORMANCE
 
 This section compares the performance of Gzip::Faster with
-L<IO::Compress::Gzip>/L<IO::Uncompress::Gunzip> and L<Compress::Raw::Zlib>. According to my
-results, Gzip::Faster is about five times faster to load, seven times
-faster to compress, and twenty-five times faster to uncompress than the IO::Uncompress modules. Round
-trips are about ten times faster with Gzip::Faster.
+L<IO::Compress::Gzip>/L<IO::Uncompress::Gunzip> and
+L<Compress::Raw::Zlib>. According to my results, Gzip::Faster is about
+five times faster to load, seven times faster to compress, and
+twenty-five times faster to uncompress than the IO::Uncompress
+modules. Round trips are about ten times faster with Gzip::Faster.
+
+Compared to the L<Compress::Raw::Zlib> modules, load times are about
+one and a half times faster, round trips are about three times faster,
+compression is about two and a half times faster, and decompression is
+about six times faster.
 
 The versions used in this test are as follows:
 
@@ -97,6 +103,18 @@ where it produces a content encoding error message. Thus this
 functionality is disabled. Please refer to the file
 F<gzip-faster-perl.c> in the distribution, the relevant parts are
 commented out with a macro C<COPY_PERL>.
+
+The module doesn't check whether the input of L</gzip> is already
+gzipped, and it doesn't check whether the compression was
+effective. That is, it doesn't check whether the output of L</gzip> is
+actually smaller than the input.
+
+=head1 ACKNOWLEDGEMENTS
+
+zgrim reported an important bug related to zlib.
+
+Aristotle Pagaltzis contributed the benchmarking code for
+L<Compress::Raw::Zlib>.
 
 =head1 AUTHOR, COPYRIGHT AND LICENCE
 

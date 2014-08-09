@@ -1,24 +1,25 @@
 $IO::Compress::Gzip::VERSION = 2.064
 $IO::Uncompress::Gunzip::VERSION = 2.064
-$Gzip::Faster::VERSION = 0.08
+$Compress::Raw::Zlib::VERSION = 2.065
+$Gzip::Faster::VERSION = 0.08_01
 --------------------------------------------------
             Rate Load IOUG Load IOCG  Load CRZ   Load GF
-Load IOUG 13.1/s        --      -11%      -70%      -80%
-Load IOCG 14.8/s       13%        --      -66%      -77%
-Load CRZ  43.3/s      231%      193%        --      -34%
-Load GF   65.4/s      400%      343%       51%        --
+Load IOUG 14.4/s        --       -4%      -67%      -78%
+Load IOCG 15.1/s        4%        --      -65%      -77%
+Load CRZ  43.2/s      200%      187%        --      -35%
+Load GF   66.5/s      361%      341%       54%        --
 --------------------------------------------------
                       Rate IO::Compress::Gzip Compress::Raw::Zlib   Gzip::Faster
-IO::Compress::Gzip   530/s                 --                -71%           -90%
-Compress::Raw::Zlib 1841/s               247%                  --           -66%
-Gzip::Faster        5475/s               933%                197%             --
+IO::Compress::Gzip   635/s                 --                -71%           -90%
+Compress::Raw::Zlib 2160/s               240%                  --           -67%
+Gzip::Faster        6584/s               937%                205%             --
 --------------------------------------------------
                                Rate IO::Compress::Gzip Compress::Raw::Zlib::Deflate Gzip::Faster
-IO::Compress::Gzip           1017/s                 --                         -61%         -86%
-Compress::Raw::Zlib::Deflate 2612/s               157%                           --         -64%
-Gzip::Faster                 7306/s               618%                         180%           --
+IO::Compress::Gzip           1240/s                 --                         -60%         -84%
+Compress::Raw::Zlib::Deflate 3083/s               149%                           --         -61%
+Gzip::Faster                 7940/s               540%                         158%           --
 --------------------------------------------------
                                 Rate IO::Uncompress::Gunzip Compress::Raw::Zlib::Inflate Gzip::Faster
-IO::Uncompress::Gunzip        1134/s                     --                         -75%         -96%
-Compress::Raw::Zlib::Inflate  4581/s                   304%                           --         -84%
-Gzip::Faster                 28959/s                  2453%                         532%           --
+IO::Uncompress::Gunzip        1390/s                     --                         -74%         -96%
+Compress::Raw::Zlib::Inflate  5396/s                   288%                           --         -83%
+Gzip::Faster                 31220/s                  2146%                         479%           --

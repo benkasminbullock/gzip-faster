@@ -1,8 +1,10 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.09 2014-08-07
+0.08_01 2014-08-09
 
 * Include Compress::Raw::Zlib in benchmarks.
+* Document lack of safety features in gzip.
+* Add "ACKNOWLEDGEMENTS" section to documentation.
 
 0.08 2014-04-22
 

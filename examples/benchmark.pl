@@ -51,6 +51,7 @@ my $round;
 
 print "\$IO::Compress::Gzip::VERSION = $IO::Compress::Gzip::VERSION\n";
 print "\$IO::Uncompress::Gunzip::VERSION = $IO::Uncompress::Gunzip::VERSION\n";
+print "\$Compress::Raw::Zlib::VERSION = $Compress::Raw::Zlib::VERSION\n";
 print "\$Gzip::Faster::VERSION = $Gzip::Faster::VERSION\n";
 
 splitline ();
