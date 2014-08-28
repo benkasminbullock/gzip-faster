@@ -109,6 +109,26 @@ gzipped, and it doesn't check whether the compression was
 effective. That is, it doesn't check whether the output of L</gzip> is
 actually smaller than the input.
 
+=head1 INSTALLATION
+
+The following message printed during perl Makefile.PL:
+
+    Warning (mostly harmless): No library found for -lz
+
+or the following message at run-time:
+
+    undefined symbol: inflate
+
+indicate that Gzip::Faster was unable to link to the system's libz.
+
+=head2 Ubuntu Linux
+
+On Ubuntu Linux, if the module fails to install, you may need to
+install a component C<zlib1g-dev> using the following command:
+
+    sudo apt-get install zlib1g-dev
+
+
 =head1 ACKNOWLEDGEMENTS
 
 zgrim reported an important bug related to zlib.
