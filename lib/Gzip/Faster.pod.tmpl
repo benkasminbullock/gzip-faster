@@ -111,7 +111,9 @@ actually smaller than the input.
 
 =head1 INSTALLATION
 
-The following message printed during perl Makefile.PL:
+Gzip::Faster requires the compression library C<zlib> (also called
+C<libz>) to be installed. The following message printed during perl
+Makefile.PL:
 
     Warning (mostly harmless): No library found for -lz
 
@@ -119,15 +121,14 @@ or the following message at run-time:
 
     undefined symbol: inflate
 
-indicate that Gzip::Faster was unable to link to the system's libz.
+indicate that Gzip::Faster was unable to link to C<libz>.
 
 =head2 Ubuntu Linux
 
-On Ubuntu Linux, if the module fails to install, you may need to
-install a component C<zlib1g-dev> using the following command:
+On Ubuntu Linux, you may need to install C<zlib1g-dev> using the
+following command:
 
     sudo apt-get install zlib1g-dev
-
 
 =head1 ACKNOWLEDGEMENTS
 

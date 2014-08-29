@@ -1,5 +1,10 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.10 2014-08-30
+
+* Installation notes in main document
+* Change minimum Perl version to 5.8.1.
+
 0.09 2014-08-16
 
 * Include Compress::Raw::Zlib in benchmarks.

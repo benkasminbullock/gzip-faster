@@ -36,7 +36,7 @@ WriteMakefile (
 #	    homepage => 'http://',
         },
     },
-    MIN_PERL_VERSION => '5.006001',
+    MIN_PERL_VERSION => '5.008001',
     OBJECT => 'Faster.o',
     LIBS => '-lz',
 #    OPTIMIZE => '-Wall -g -O',
