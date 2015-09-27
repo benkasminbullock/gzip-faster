@@ -1,5 +1,14 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.12 2015-09-27
+
+* Update of benchmarks
+* Clearer documentation in the INSTALLATION section
+
+0.11 2015-09-19
+
+* Avoid build errors on 64 bit systems (unsigned int -> STRLEN)
+
 0.10 2014-08-30
 
 * Installation notes in main document

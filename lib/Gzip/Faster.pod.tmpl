@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Gzip::Faster - gzip and gunzip, without the fuss
+Gzip::Faster - simple and fast gzip and gunzip
 
 =head1 SYNOPSIS
 
@@ -12,6 +12,12 @@ Gzip::Faster - gzip and gunzip, without the fuss
 
 This module compresses to and decompresses from the gzip format.
 
+The module offers two basic functions, L<gzip> and L<gunzip>, which
+convert scalars to and from gzip format, and three convenience
+functions: L<gzip_file> reads a file then compresses it;
+L<gunzip_file> reads a file then uncompresses it; and L<gzip_to_file>
+compresses a scalar and writes it to a file.
+
 =head1 FUNCTIONS
 
 =head2 gzip
@@ -19,7 +25,7 @@ This module compresses to and decompresses from the gzip format.
     my $zipped = gzip ($stuff);
 
 This compresses C<$stuff> into the gzip format. The return value is
-the compressed version of C<$stuff>.
+the compressed version of C<$stuff>. 
 
 =head2 gunzip
 
@@ -111,6 +117,12 @@ actually smaller than the input.
 
 =head1 INSTALLATION
 
+Installation follows the standard Perl methods. If you do not know
+what the standard Perl module install methods are, detailed
+instructions can be found in the file F<README> in the
+distribution. The following are some extra notes for people who get
+stuck.
+
 Gzip::Faster requires the compression library C<zlib> (also called
 C<libz>) to be installed. The following message printed during perl
 Makefile.PL:
@@ -139,7 +151,7 @@ L<Compress::Raw::Zlib>.
 
 =head1 AUTHOR, COPYRIGHT AND LICENCE
 
-Ben Bullock <bkb@cpan.org>. Copyright (C) 2014 Ben Bullock. This
+Ben Bullock <bkb@cpan.org>. Copyright (C) 2015 Ben Bullock. This
 software may be used, modified, distributed under the same licence as
 Perl itself.
 

@@ -50,7 +50,7 @@ gzip_faster (SV * plain)
     SV * zipped;
     z_stream strm;
     char * plain_char;
-    unsigned plain_length;
+    STRLEN plain_length;
     int level;
     int zlib_status;
     /* This holds the stuff. */
@@ -142,7 +142,7 @@ gunzip_faster (SV * zipped)
 
     z_stream strm;
     char * zipped_char;
-    unsigned zipped_length;
+    STRLEN zipped_length;
     /* We are writing the unzipped stuff into this before copying it
        to the end of "zipped". */
     unsigned char out_buffer[CHUNK];
