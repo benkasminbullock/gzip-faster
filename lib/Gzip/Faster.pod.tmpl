@@ -23,14 +23,14 @@ compresses a scalar and writes it to a file.
 
 =head2 gzip
 
-    my $zipped = gzip ($stuff);
+    my $zipped = gzip ($plain);
 
-This compresses C<$stuff> into the gzip format. The return value is
-the compressed version of C<$stuff>. 
+This compresses C<$plain> into the gzip format. The return value is
+the compressed version of C<$plain>. 
 
 =head2 gunzip
 
-    my $stuff = gunzip ($zipped);
+    my $plain = gunzip ($zipped);
 
 This uncompresses C<$zipped> and returns the result of the
 uncompression. It returns the undefined value if C<$zipped> is the
@@ -48,7 +48,7 @@ fails.
 
 =head2 gunzip_file
 
-    my $stuff = gunzip_file ('file.gz');
+    my $plain = gunzip_file ('file.gz');
 
 This reads the contents of F<file.gz> into memory and then runs
 L</gunzip> on the file's contents. The return value and the possible

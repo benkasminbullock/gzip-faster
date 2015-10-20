@@ -1,7 +1,8 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.12_01 2015-10-20
+0.13 2015-10-20
 * Minor speed improvement for short strings
+* Better documentation of benchmarks
 
 0.12 2015-09-27
 

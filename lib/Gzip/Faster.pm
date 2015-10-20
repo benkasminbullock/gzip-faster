@@ -5,7 +5,7 @@ require Exporter;
 use warnings;
 use strict;
 use Carp;
-our $VERSION = '0.12_01';
+our $VERSION = '0.13';
 require XSLoader;
 XSLoader::load ('Gzip::Faster', $VERSION);
 
@@ -15,7 +15,7 @@ sub gzip_file
     open my $in, "<:raw", $file or croak "Error opening '$file': $!";
     local $/;
     my $plain = <$in>;
-    close $in or die "Error closing '$file': $!";
+    close $in or croak "Error closing '$file': $!";
     return gzip ($plain);
 }
 
@@ -25,7 +25,7 @@ sub gunzip_file
     open my $in, "<:raw", $file or croak "Error opening '$file': $!";
     local $/;
     my $zipped = <$in>;
-    close $in or die "Error closing '$file': $!";
+    close $in or croak "Error closing '$file': $!";
     return gunzip ($zipped);
 }
 
