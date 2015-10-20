@@ -90,6 +90,10 @@ The versions used in this test are as follows:
 
 [% short.versions | indent (4) %]
 
+The size after compression is as follows:
+
+[% short.size | indent (4) %]
+
 Here is a comparison of load times:
 
 [% short.load | indent (4) %]
@@ -117,6 +121,19 @@ header and footer text removed.
 
 The versions used in this test are as above.
 
+The sizes are as follows:
+
+[% long.size | indent (4) %]
+
+Note that the size of the file compressed with the command-line gzip,
+with the default compression, is identical to the size with
+Gzip::Faster::gzip, except for the 12 bytes in the file version used
+to store the file name:
+
+    $ gzip --keep chinese.txt
+    $ ls -l chinese.txt.gz 
+    -rw-r--r--  1 ben  ben  995835 Oct 20 18:52 chinese.txt.gz
+
 Here is a comparison of a round-trip:
 
 [% long.round | indent (4) %]
@@ -128,8 +145,6 @@ Here is a comparison of gzip (compression) only:
 Here is a comparison of gunzip (decompression) only:
 
 [% long.gunzip | indent (4) %]
-
-The test file is in "bench/big.pl" in the distribution.
 
 For longer files, Gzip::Faster is not much faster and the underlying
 library's speed is the main factor.

@@ -2,13 +2,32 @@
 use warnings;
 use strict;
 use Benchmark qw(:all);
+use FindBin '$Bin';
+use Path::Tiny;
+
 use IO::Compress::Gzip 'gzip';
 use IO::Uncompress::Gunzip 'gunzip';
 use Gzip::Faster;
 use Compress::Raw::Zlib;
-use FindBin;
 
-my $in = <<EOF;
+my $testinput = 'english';
+
+my $testtype = 'speed';
+
+my $validate = 0;
+
+my $showsize = 1;
+
+# The input
+
+my $in;
+
+# The number of times to run the test.
+
+my $repeat;
+
+if ($testinput eq 'english') {
+    $in = <<EOF;
 To be, or not to be: that is the question:
 Whether 'tis nobler in the mind to suffer
 The slings and arrows of outrageous fortune,
@@ -45,6 +64,18 @@ And lose the name of action.Soft you now!
 The fair Ophelia! Nymph, in thy orisons
 Be all my sins remember'd.
 EOF
+$repeat = 50000;
+
+}
+elsif ($testinput eq 'chinese') {
+    my $path = path ("$Bin/chinese.txt");
+
+    # Don't slurp_utf8 this because the UTF-8 flag will not survive
+    # the round-trip.
+    
+    $in = $path->slurp ();
+    $repeat = 50;
+}
 
 my $out;
 my $round;
@@ -55,6 +86,17 @@ print "\$Compress::Raw::Zlib::VERSION = $Compress::Raw::Zlib::VERSION\n";
 print "\$Gzip::Faster::VERSION = $Gzip::Faster::VERSION\n";
 
 splitline ();
+
+if ($showsize) {
+    IO::Compress::Gzip::gzip \$in, \my $iocg;
+    print "IO::Compress:Gzip size is ", length ($iocg), " bytes.\n";
+    my $crz = crzdeflatevalue ($in);
+    print "Compress::Raw::Zlib size is ", length ($crz), " bytes.\n";
+    my $gzf = Gzip::Faster::gzip ($in);
+    print "Gzip::Faster size is ", length ($gzf), " bytes.\n";
+    splitline ();
+}
+
 
 # IO::Compress::Gzip and its partner are very slow to load, so $count
 # should not be a big number.
@@ -69,6 +111,48 @@ cmpthese ($count, {
 # Compare to get a comparison with just the perl interpreter.
 #    'do nothing' => 'do_nothing ();',
 });
+
+splitline ();
+
+$count = $repeat;
+
+cmpthese ($count, {
+    'IO::Compress::Gzip' => 'io_comp_gzip ()',
+    'Compress::Raw::Zlib' => 'comp_raw_zlib ()',
+    'Gzip::Faster' => 'gzip_faster ()',
+});
+
+splitline ();
+
+cmpthese ($count, {
+    'IO::Compress::Gzip' => 'io_comp_gzip_only ()',
+    'Compress::Raw::Zlib::Deflate' => 'comp_raw_zlib_def_only ()',
+    'Gzip::Faster' => 'gzip_faster_gzip_only ()',
+});
+
+splitline ();
+
+cmpthese ($count, {
+    'IO::Uncompress::Gunzip' => 'io_comp_gunzip_only ()',
+    'Compress::Raw::Zlib::Inflate' => 'comp_raw_zlib_inf_only ()',
+    'Gzip::Faster' => 'gzip_faster_gunzip_only ()',
+});
+
+exit;
+
+# Just to get the size. 
+
+sub crzdeflatevalue
+{
+    my $buf;
+    my $deflated;
+    my $dx = Compress::Raw::Zlib::Deflate->new( -WindowBits => WANT_GZIP )
+        or die "Cannot create a deflation stream\n";
+    ( $dx->deflate($in, $buf) == Z_OK ) ? $deflated = $buf : die "deflation failed\n";
+    ( $dx->flush($buf) == Z_OK ) ? $deflated .= $buf : die "deflation failed\n";
+    return $deflated;
+}
+
 
 sub load_io_comp_gzip
 {
@@ -95,22 +179,14 @@ sub do_nothing
     system ("perl $FindBin::Bin/do_nothing");
 }
 
-splitline ();
-
-$count = 50000;
-
-cmpthese ($count, {
-    'IO::Compress::Gzip' => 'io_comp_gzip ()',
-    'Compress::Raw::Zlib' => 'comp_raw_zlib ()',
-    'Gzip::Faster' => 'gzip_faster ()',
-});
-
 sub io_comp_gzip
 {
     IO::Compress::Gzip::gzip \$in, \$out;
     IO::Uncompress::Gunzip::gunzip \$out, \$round;
 # Comment out to get better benchmark. Uncomment to check validity.
-#    die if $in ne $round;
+    if ($validate) {
+	die if $in ne $round;
+    }
 }
 
 sub comp_raw_zlib
@@ -124,7 +200,9 @@ sub comp_raw_zlib
         or die "Cannot create a inflation stream\n";
     $_ == Z_OK or $_ == Z_STREAM_END or die "inflation failed\n" for $ix->inflate($out, $round);
 # Comment out to get better benchmark. Uncomment to check validity.
-#    die if $in ne $round;
+    if ($validate) {
+	die if $in ne $round;
+    }
 }
 
 sub gzip_faster
@@ -132,16 +210,10 @@ sub gzip_faster
     $out = Gzip::Faster::gzip ($in);
     $round = Gzip::Faster::gunzip ($out);
 # Comment out to get better benchmark. Uncomment to check validity.
-#    die if $in ne $round;
+    if ($validate) {
+	die if $in ne $round;
+    }
 }
-
-splitline ();
-
-cmpthese ($count, {
-    'IO::Compress::Gzip' => 'io_comp_gzip_only ()',
-    'Compress::Raw::Zlib::Deflate' => 'comp_raw_zlib_def_only ()',
-    'Gzip::Faster' => 'gzip_faster_gzip_only ()',
-});
 
 sub io_comp_gzip_only
 {
@@ -161,14 +233,6 @@ sub gzip_faster_gzip_only
 {
     $out = Gzip::Faster::gzip ($in);
 }
-
-splitline ();
-
-cmpthese ($count, {
-    'IO::Uncompress::Gunzip' => 'io_comp_gunzip_only ()',
-    'Compress::Raw::Zlib::Inflate' => 'comp_raw_zlib_inf_only ()',
-    'Gzip::Faster' => 'gzip_faster_gunzip_only ()',
-});
 
 sub io_comp_gunzip_only
 {

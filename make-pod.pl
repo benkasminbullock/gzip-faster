@@ -2,10 +2,10 @@
 use warnings;
 use strict;
 use Template;
-use FindBin;
+use FindBin '$Bin';
 use Path::Tiny;
 
-my $pod = "$FindBin::Bin/lib/Gzip/Faster.pod";
+my $pod = "$Bin/lib/Gzip/Faster.pod";
 
 # Template toolkit variable holder
 
@@ -26,18 +26,10 @@ my $tt = Template->new (
     STRICT => 1,
 );
 
-my $edir = "$FindBin::Bin/bench";
-my $efile = "$edir/benchmarks.output";
-my $cfile = "$edir/lbenchmark.txt";
-my @fields = qw/versions load round gzip gunzip/;
-for my $file ($efile, $cfile) {
-    my $type;
-    if ($file =~ /lbench/) {
-	$type = 'long';
-    }
-    else {
-	$type = 'short';
-    }
+my $edir = "$Bin/bench";
+my @fields = qw/versions size load round gzip gunzip/;
+for my $type (qw/short long/) {
+    my $file = "$edir/$type.output";
     if (! -f $file || -M $file > -M "$edir/benchmark.pl") {
 	die "Rebuild benchmarks file '$file'";
     }
