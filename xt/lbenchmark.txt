@@ -1,0 +1,16 @@
+--------------------------------------------------
+--------------------------------------------------
+                      Rate IO::Compress::Gzip Compress::Raw::Zlib   Gzip::Faster
+IO::Compress::Gzip  4.42/s                 --                 -2%            -8%
+Compress::Raw::Zlib 4.53/s                 3%                  --            -6%
+Gzip::Faster        4.81/s                 9%                  6%             --
+--------------------------------------------------
+                               Rate IO::Compress::Gzip Compress::Raw::Zlib::Deflate Gzip::Faster
+IO::Compress::Gzip           4.97/s                 --                          -2%          -7%
+Compress::Raw::Zlib::Deflate 5.05/s                 2%                           --          -6%
+Gzip::Faster                 5.37/s                 8%                           6%           --
+--------------------------------------------------
+                               Rate IO::Uncompress::Gunzip Compress::Raw::Zlib::Inflate Gzip::Faster
+IO::Uncompress::Gunzip       36.8/s                     --                         -18%         -21%
+Compress::Raw::Zlib::Inflate 45.1/s                    23%                           --          -3%
+Gzip::Faster                 46.4/s                    26%                           3%           --

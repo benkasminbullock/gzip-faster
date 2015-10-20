@@ -94,9 +94,7 @@ gzip_faster (SV * plain)
 
 #endif /* def COPY_PERL */
 
-    /* newSV (0) gets us "uninitialized in subroutine entry" stuff. */
-
-    zipped = newSVpv ("", 0);
+    zipped = 0;
 
     do {
 	unsigned int have;
@@ -121,8 +119,14 @@ gzip_faster (SV * plain)
 	    croak ("Unknown status %d from deflate", zlib_status);
 	    break;
 	}
+	/* The number of bytes we "have". */
 	have = CHUNK - strm.avail_out;
-	sv_catpvn (zipped, (const char *) out_buffer, have);
+	if (! zipped) {
+	    zipped = newSVpv ((const char *) out_buffer, have);
+	}
+	else {
+	    sv_catpvn (zipped, (const char *) out_buffer, have);
+	}
     }
     while (strm.avail_out == 0);
     if (strm.avail_in != 0) {
@@ -179,9 +183,7 @@ gunzip_faster (SV * zipped)
 
 #endif
 
-    /* newSV (0) gets us "uninitialized in subroutine entry" stuff. */
-
-    plain = newSVpv ("", 0);
+    plain = 0;
 
     do {
 	unsigned int have;
@@ -213,7 +215,12 @@ gunzip_faster (SV * zipped)
 	    break;
 	}
 	have = CHUNK - strm.avail_out;
-	sv_catpvn (plain, (const char *) out_buffer, have);
+	if (! plain) {
+	    plain = newSVpv ((const char *) out_buffer, have);
+	}
+	else {
+	    sv_catpvn (plain, (const char *) out_buffer, have);
+	}
     }
     while (strm.avail_out == 0);
     if (strm.avail_in != 0) {

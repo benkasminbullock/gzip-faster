@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Template;
 use FindBin;
+use Path::Tiny;
 
 my $pod = "$FindBin::Bin/lib/Gzip/Faster.pod";
 
@@ -20,23 +21,35 @@ my $tt = Template->new (
     },
     INCLUDE_PATH => [
 	"$FindBin::Bin/examples",
+	"/home/ben/projects/Perl-Build/lib/Perl/Build/templates",
     ],
+    STRICT => 1,
 );
 
 my $edir = "$FindBin::Bin/examples";
 my $efile = "$edir/benchmarks.output";
-if (! -f $efile || -M $efile > -M "$edir/benchmark.pl") {
-    die "Rebuild benchmarks file '$efile'";
-}
-open my $input, "<", $efile or die $!;
-my $e;
-{
-local $/;
-$e = <$input>;
-}
-close $input or die $!;
+my $cfile = "xt/lbenchmark.txt";
 my @fields = qw/versions load round gzip gunzip/;
-@vars{@fields} = split /-{50}/, $e;
+for my $file ($efile, $cfile) {
+    my $type;
+    if ($file =~ /lbench/) {
+	$type = 'long';
+    }
+    else {
+	$type = 'short';
+    }
+    if (! -f $file || -M $file > -M "$edir/benchmark.pl") {
+	die "Rebuild benchmarks file '$file'";
+    }
+    my $p = path ($file);
+    my $input = $p->slurp ();
+    my @stuff = split /-{50}/, $input;
+    for my $field (@fields) {
+	my $n = shift @stuff;
+#	print "$n\n";
+	$vars{$type}{$field} = $n;
+    }
+}
 chmod 0644, $pod;
 $tt->process ("$pod.tmpl", \%vars, $pod) or die '' . $tt->error ();
 chmod 0444, $pod;

@@ -1,3 +1,4 @@
+[% start_year = 2014 %]
 =encoding UTF-8
 
 =head1 NAME
@@ -68,10 +69,17 @@ information to F<file.gz>.
 
 This section compares the performance of Gzip::Faster with
 L<IO::Compress::Gzip>/L<IO::Uncompress::Gunzip> and
-L<Compress::Raw::Zlib>. According to my results, Gzip::Faster is about
-five times faster to load, seven times faster to compress, and
-twenty-five times faster to uncompress than the IO::Uncompress
-modules. Round trips are about ten times faster with Gzip::Faster.
+L<Compress::Raw::Zlib>. 
+
+=head2 Short text
+
+The compression and decompression parts test
+the performance of the modules on a short piece of English text.
+
+According to my results, Gzip::Faster is about five times faster to
+load, seven times faster to compress, and twenty-five times faster to
+uncompress than the IO::Uncompress modules. Round trips are about ten
+times faster with Gzip::Faster.
 
 Compared to the L<Compress::Raw::Zlib> modules, load times are about
 one and a half times faster, round trips are about three times faster,
@@ -80,25 +88,49 @@ about six times faster.
 
 The versions used in this test are as follows:
 
-[% versions | indent (4) %]
+[% short.versions | indent (4) %]
 
 Here is a comparison of load times:
 
-[% load | indent (4) %]
+[% short.load | indent (4) %]
 
 Here is a comparison of a round-trip:
 
-[% round | indent (4) %]
+[% short.round | indent (4) %]
 
 Here is a comparison of gzip (compression) only:
 
-[% gzip | indent (4) %]
+[% short.gzip | indent (4) %]
 
 Here is a comparison of gunzip (decompression) only:
 
-[% gunzip | indent (4) %]
+[% short.gunzip | indent (4) %]
 
 The test file is in "examples/benchmark.pl" in the distribution.
+
+=head2 Long text
+
+This section compares the compression on a 2.2 megabyte file of
+Chinese text, which is the Project Gutenberg version of Journey to the
+West, L<http://www.gutenberg.org/files/23962/23962-0.txt>, with the
+header and footer text removed.
+
+The versions used in this test are as above.
+
+Here is a comparison of a round-trip:
+
+[% long.round | indent (4) %]
+
+Here is a comparison of gzip (compression) only:
+
+[% long.gzip | indent (4) %]
+
+Here is a comparison of gunzip (decompression) only:
+
+[% long.gunzip | indent (4) %]
+
+For longer files, Gzip::Faster is not much faster and the underlying
+library's speed is the main factor.
 
 =head1 BUGS
 
@@ -149,11 +181,31 @@ zgrim reported an important bug related to zlib.
 Aristotle Pagaltzis contributed the benchmarking code for
 L<Compress::Raw::Zlib>.
 
-=head1 AUTHOR, COPYRIGHT AND LICENCE
+=head1 SEE ALSO
 
-Ben Bullock <bkb@cpan.org>. Copyright (C) 2015 Ben Bullock. This
-software may be used, modified, distributed under the same licence as
-Perl itself.
+=over
 
-=cut
+=item gzip
 
+Even within Perl, sometimes it's a lot easier to use the command line
+utility C<gzip> as in
+
+    system ("gzip file");
+
+or C<`gzip file`> than it is to try to figure out how to use some
+module or another.
+
+=item mod_deflate and mod_gzip
+
+These are Apache web server modules which compress web outputs on the
+fly.
+
+=back
+
+=head1 HISTORY
+
+This module started as a way to get better-performing compression for
+web pages created on the fly.
+
+
+[% INCLUDE "author" %]
