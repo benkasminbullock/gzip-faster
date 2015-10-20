@@ -26,9 +26,9 @@ my $tt = Template->new (
     STRICT => 1,
 );
 
-my $edir = "$FindBin::Bin/examples";
+my $edir = "$FindBin::Bin/bench";
 my $efile = "$edir/benchmarks.output";
-my $cfile = "xt/lbenchmark.txt";
+my $cfile = "$edir/lbenchmark.txt";
 my @fields = qw/versions load round gzip gunzip/;
 for my $file ($efile, $cfile) {
     my $type;

@@ -106,7 +106,7 @@ Here is a comparison of gunzip (decompression) only:
 
 [% short.gunzip | indent (4) %]
 
-The test file is in "examples/benchmark.pl" in the distribution.
+The test file is in "bench/benchmark.pl" in the distribution.
 
 =head2 Long text
 
@@ -128,6 +128,8 @@ Here is a comparison of gzip (compression) only:
 Here is a comparison of gunzip (decompression) only:
 
 [% long.gunzip | indent (4) %]
+
+The test file is in "bench/big.pl" in the distribution.
 
 For longer files, Gzip::Faster is not much faster and the underlying
 library's speed is the main factor.

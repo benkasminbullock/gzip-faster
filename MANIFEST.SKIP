@@ -13,3 +13,4 @@ MYMETA..*
 ^lib/Gzip/Faster\.pod\.tmpl$
 ^make-pod\.pl$
 file\.gz$
+^bench/chinese\.txt$
