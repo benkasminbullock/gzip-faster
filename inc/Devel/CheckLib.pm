@@ -6,7 +6,7 @@ Devel::CheckLib;
 use 5.00405; #postfix foreach
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
-$VERSION = '1.01';
+$VERSION = '1.05';
 use Config qw(%Config);
 use Text::ParseWords 'quotewords';
 
@@ -110,7 +110,7 @@ representing additional paths to search for libraries.
 
 =item LIBS
 
-a C<ExtUtils::MakeMaker>-style space-seperated list of
+a C<ExtUtils::MakeMaker>-style space-separated list of
 libraries (each preceded by '-l') and directories (preceded by '-L').
 
 This can also be supplied on the command-line.
@@ -138,7 +138,7 @@ representing additional paths to search for headers.
 
 =item INC
 
-a C<ExtUtils::MakeMaker>-style space-seperated list of
+a C<ExtUtils::MakeMaker>-style space-separated list of
 incpaths, each preceded by '-I'.
 
 This can also be supplied on the command-line.
@@ -178,6 +178,68 @@ sub check_lib {
     return $@ ? 0 : 1;
 }
 
+# borrowed from Text::ParseWords
+sub _parse_line {
+    my($delimiter, $keep, $line) = @_;
+    my($word, @pieces);
+
+    no warnings 'uninitialized';  # we will be testing undef strings
+
+    while (length($line)) {
+        # This pattern is optimised to be stack conservative on older perls.
+        # Do not refactor without being careful and testing it on very long strings.
+        # See Perl bug #42980 for an example of a stack busting input.
+        $line =~ s/^
+                    (?:
+                        # double quoted string
+                        (")                             # $quote
+                        ((?>[^\\"]*(?:\\.[^\\"]*)*))"   # $quoted
+        | # --OR--
+                        # singe quoted string
+                        (')                             # $quote
+                        ((?>[^\\']*(?:\\.[^\\']*)*))'   # $quoted
+                    |   # --OR--
+                        # unquoted string
+                        (                               # $unquoted
+                            (?:\\.|[^\\"'])*?
+                        )
+                        # followed by
+                        (                               # $delim
+                            \Z(?!\n)                    # EOL
+                        |   # --OR--
+                            (?-x:$delimiter)            # delimiter
+                        |   # --OR--
+                            (?!^)(?=["'])               # a quote
+                        )
+        )//xs or return;    # extended layout
+        my ($quote, $quoted, $unquoted, $delim) = (($1 ? ($1,$2) : ($3,$4)), $5, $6);
+
+        return() unless( defined($quote) || length($unquoted) || length($delim));
+
+        if ($keep) {
+            $quoted = "$quote$quoted$quote";
+        }
+        else {
+            $unquoted =~ s/\\(.)/$1/sg;
+            if (defined $quote) {
+                $quoted =~ s/\\(.)/$1/sg if ($quote eq '"');
+            }
+        }
+        $word .= substr($line, 0, 0); # leave results tainted
+        $word .= defined $quote ? $quoted : $unquoted;
+
+        if (length($delim)) {
+            push(@pieces, $word);
+            push(@pieces, $delim) if ($keep eq 'delimiters');
+            undef $word;
+        }
+        if (!length($line)) {
+            push(@pieces, $word);
+        }
+    }
+    return(@pieces);
+}
+
 sub assert_lib {
     my %args = @_;
     my (@libs, @libpaths, @headers, @incpaths);
@@ -192,9 +254,12 @@ sub assert_lib {
     @incpaths = (ref($args{incpath}) ? @{$args{incpath}} : $args{incpath}) 
         if $args{incpath};
 
+    my @argv = @ARGV;
+    push @argv, _parse_line('\s+', 0, $ENV{PERL_MM_OPT}||'');
+
     # work-a-like for Makefile.PL's LIBS and INC arguments
     # if given as command-line argument, append to %args
-    for my $arg (@ARGV) {
+    for my $arg (@argv) {
         for my $mm_attr_key (qw(LIBS INC)) {
             if (my ($mm_attr_value) = $arg =~ /\A $mm_attr_key = (.*)/x) {
             # it is tempting to put some \s* into the expression, but the
@@ -366,7 +431,7 @@ sub _findcc {
     # Need to use $keep=1 to work with MSWin32 backslashes and quotes
     my $Config_ccflags =  $Config{ccflags};  # use copy so ASPerl will compile
     my @Config_ldflags = ();
-    for my $config_val ( @Config{qw(ldflags perllibs)} ){
+    for my $config_val ( @Config{qw(ldflags)} ){
         push @Config_ldflags, $config_val if ( $config_val =~ /\S/ );
     }
     my @ccflags = grep { length } quotewords('\s+', 1, $Config_ccflags||'');
@@ -375,7 +440,11 @@ sub _findcc {
     my @cc = split(/\s+/, $Config{cc});
     return ( [ @cc, @ccflags ], \@ldflags ) if -x $cc[0];
     foreach my $path (@paths) {
-        my $compiler = File::Spec->catfile($path, $cc[0]) . $Config{_exe};
+        my $compiler = File::Spec->catfile($path, $cc[0]) . ($^O eq 'cygwin' ? '' : $Config{_exe});
+        return ([ $compiler, @cc[1 .. $#cc], @ccflags ], \@ldflags)
+            if -x $compiler;
+        next if ! length $Config{_exe};
+        $compiler = File::Spec->catfile($path, $cc[0]);
         return ([ $compiler, @cc[1 .. $#cc], @ccflags ], \@ldflags)
             if -x $compiler;
     }
@@ -418,7 +487,7 @@ sub _quiet_system {
 You must have a C compiler installed.  We check for C<$Config{cc}>,
 both literally as it is in Config.pm and also in the $PATH.
 
-It has been tested with varying degrees on rigourousness on:
+It has been tested with varying degrees of rigorousness on:
 
 =over
 

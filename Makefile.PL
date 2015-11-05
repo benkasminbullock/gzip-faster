@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 use lib qw(inc);
 use Devel::CheckLib;
 
-check_lib_or_exit(lib => 'z', header => 'zlib.h');
+check_lib_or_exit (lib => 'z', header => 'zlib.h');
 
 my $pm = 'lib/Gzip/Faster.pm';
 my $pod = 'lib/Gzip/Faster.pod';

@@ -151,6 +151,11 @@ library's speed is the main factor.
 
 =head1 BUGS
 
+There is no deflate compression in the module. There is no way to
+select the level of compression. The compression offered by this
+module is the zlib default one, which is what you get if you run
+command-line gzip on a file.
+
 The module source code includes disabled functionality to round-trip
 Perl flags. I applied this to preserving Perl's "utf8" flag. However,
 the mechanism I used trips a browser bug in the Firefox web browser
@@ -191,6 +196,33 @@ following command:
 
     sudo apt-get install zlib1g-dev
 
+=head2 Windows
+
+Unfortunately at this time the module doesn't seem to install on
+ActiveState Perl. You can check the current status at
+L<http://code.activestate.com/ppm/Gzip-Faster/>. At the time of 0.13
+it seems to fail with an error message
+
+    Can't link/include C library 'zlib.h', 'z', aborting.
+
+However, the module seems to install without problems on Strawberry
+Perl, so if you cannot install via ActiveState, you may want to try
+that instead.
+
+=head1 EXPORTS
+
+The module exports L</gzip>, L</gunzip>, L</gzip_file>,
+L</gunzip_file>, and L</gzip_to_file> by default. You can switch this
+blanket exporting off with
+
+    use Gzip::Faster ();
+
+or
+
+    use Gzip::Faster 'gunzip';
+
+whereby you only get C<gunzip> and not the other functions exported.
+
 =head1 ACKNOWLEDGEMENTS
 
 zgrim reported an important bug related to zlib.
@@ -217,12 +249,37 @@ module or another.
 These are Apache web server modules which compress web outputs on the
 fly.
 
+=item L<IO::Zlib>
+
+=item L<Compress::Zlib>
+
+=item L<Compress::Raw::Zlib>
+
+=item L<CGI::Compress::Gzip>
+
+=item L<IO::Compress::Gzip> and L<IO::Uncompress::Gunzip>
+
 =back
 
 =head1 HISTORY
 
-This module started as a way to get better-performing compression for
-web pages created on the fly.
+This module started as an experimental benchmark against
+L<IO::Compress::Gzip> when profiling revealed that some web programs
+were spending the majority of their time in
+L<IO::Compress::Gzip>. Because I also had some web programs in C,
+which use the raw zlib itself, I was aware that zlib itself was very
+fast, and I was surprised by the amount of time the Perl code was
+taking. I wrote this module to test IO::Compress::Gzip against a
+simplistic C wrapper. I released the module to CPAN because the
+results were very striking. 
 
+The code's ancestor is the example program C<zpipe> supplied with
+zlib. See L<http://zlib.net/zpipe.c>. Gzip::Faster is little more than
+C<zpipe> reading to and and writing from Perl scalars. 
+
+The reason this module only offers gzip and not deflate compression is
+that gzip is more common on the web, due to some browser
+incompatibilities. Deflate compression could easily be added, so if you
+are interested, please contact the author.
 
 [% INCLUDE "author" %]

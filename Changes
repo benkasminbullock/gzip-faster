@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.13_01 2015-11-05
+* Install check script
+* Upgrade Devel::CheckLib
+
 0.13 2015-10-20
 * Minor speed improvement for short strings
 * Better documentation of benchmarks
