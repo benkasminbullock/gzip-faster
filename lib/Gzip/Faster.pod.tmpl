@@ -65,6 +65,65 @@ are the same as L</gzip>, plus this may also throw an error if C<open>
 fails. As of this version, it does not write any gzip header
 information to F<file.gz>.
 
+=head1 INSTALLATION
+
+Installation follows the standard Perl methods. If you do not know
+what the standard Perl module install methods are, detailed
+instructions can be found in the file F<README> in the
+distribution. The following are some extra notes for people who get
+stuck.
+
+Gzip::Faster requires the compression library C<zlib> (also called
+C<libz>) to be installed. The following message printed during perl
+Makefile.PL:
+
+    Warning (mostly harmless): No library found for -lz
+
+or the following message at run-time:
+
+    undefined symbol: inflate
+
+indicate that Gzip::Faster was unable to link to C<libz>.
+
+=head2 Ubuntu Linux
+
+On Ubuntu Linux, you may need to install C<zlib1g-dev> using the
+following command:
+
+    sudo apt-get install zlib1g-dev
+
+=head2 Windows
+
+Unfortunately at this time the module doesn't seem to install on
+ActiveState Perl. You can check the current status at
+L<http://code.activestate.com/ppm/Gzip-Faster/>. At the time of 0.13
+it seems to fail with an error message
+
+    Can't link/include C library 'zlib.h', 'z', aborting.
+
+However, the module seems to install without problems on Strawberry
+Perl, so if you cannot install via ActiveState, you may want to try
+that instead.
+
+=head2 Debugging script
+
+If you think that zlib is installed on your computer, and yet you
+cannot get this module to install, please follow these steps:
+
+    wget https://cpan.metacpan.org/authors/id/B/BK/BKB/Gzip-Faster-[% version %].tar.gz
+    tar xfz Gzip-Faster-[% version %].tar.gz
+    cd Gzip-Faster-[% version %]
+    perl check-zlib.pl > check.txt 2>&1
+
+If you do not have "wget", please feel free to download it by other
+means. "wget" does not affect the contents of the file. Please be sure
+to copy the final line exactly, since L<Devel::CheckLib> writes output
+to stderr, not to stdout.
+
+At the end of this, you should get a file "check.txt". Either email
+the file to me at bkb@cpan.org, or copy and paste it into a github
+issue.
+
 =head1 PERFORMANCE
 
 This section compares the performance of Gzip::Faster with
@@ -169,46 +228,6 @@ gzipped, and it doesn't check whether the compression was
 effective. That is, it doesn't check whether the output of L</gzip> is
 actually smaller than the input.
 
-=head1 INSTALLATION
-
-Installation follows the standard Perl methods. If you do not know
-what the standard Perl module install methods are, detailed
-instructions can be found in the file F<README> in the
-distribution. The following are some extra notes for people who get
-stuck.
-
-Gzip::Faster requires the compression library C<zlib> (also called
-C<libz>) to be installed. The following message printed during perl
-Makefile.PL:
-
-    Warning (mostly harmless): No library found for -lz
-
-or the following message at run-time:
-
-    undefined symbol: inflate
-
-indicate that Gzip::Faster was unable to link to C<libz>.
-
-=head2 Ubuntu Linux
-
-On Ubuntu Linux, you may need to install C<zlib1g-dev> using the
-following command:
-
-    sudo apt-get install zlib1g-dev
-
-=head2 Windows
-
-Unfortunately at this time the module doesn't seem to install on
-ActiveState Perl. You can check the current status at
-L<http://code.activestate.com/ppm/Gzip-Faster/>. At the time of 0.13
-it seems to fail with an error message
-
-    Can't link/include C library 'zlib.h', 'z', aborting.
-
-However, the module seems to install without problems on Strawberry
-Perl, so if you cannot install via ActiveState, you may want to try
-that instead.
-
 =head1 EXPORTS
 
 The module exports L</gzip>, L</gunzip>, L</gzip_file>,
@@ -248,6 +267,14 @@ module or another.
 
 These are Apache web server modules which compress web outputs on the
 fly.
+
+=item L<PerlIO::gzip>
+
+This is a Perl extension to provide a PerlIO layer to
+gzip/gunzip. That means you can just add C<:gzip> when you open a file
+to read or write compressed files:
+
+    open my $in, "<:gzip", 'file.gz'
 
 =item L<IO::Zlib>
 
