@@ -197,15 +197,6 @@ Gzip::Faster requires the compression library C<zlib> (also called
 C<libz>) to be installed. The following message printed during perl
 Makefile.PL:
 
-    Can't link/include C library 'zlib.h', 'z', aborting.
-
-is an error from L<Devel::CheckLib> indicating that it was unable to
-find zlib. If you think that zlib is installed on your computer,
-please run the script mentioned under L</Debugging script> and send
-the results to the module author (see L</AUTHOR>).
-
-The following message printed during perl Makefile.PL:
-
     Warning (mostly harmless): No library found for -lz
 
 or the following message at run-time:
@@ -236,29 +227,6 @@ it seems to fail with an error message
 However, the module seems to install without problems on Strawberry
 Perl, so if you cannot install via ActiveState, you may want to try
 that instead.
-
-=head2 Debugging script
-
-If zlib seems to be installed on your computer, and yet you cannot get
-this module to install, please follow these steps:
-
-    wget https://cpan.metacpan.org/authors/id/B/BK/BKB/Gzip-Faster-[% version %].tar.gz
-    tar xfz Gzip-Faster-[% version %].tar.gz
-    cd Gzip-Faster-[% version %]
-    perl check-zlib.pl > check.txt 2>&1
-
-Here "wget" is a program to download the file. If you do not have
-"wget", please feel free to download it by other means. For example,
-
-    curl -O https://cpan.metacpan.org/authors/id/B/BK/BKB/Gzip-Faster-[% version %].tar.gz
-
-"wget" and "curl" do not affect the contents of the file. Please be
-sure to copy the final line exactly, since L<Devel::CheckLib> writes
-output to stderr, not to stdout.
-
-At the end of this, you should get a file "check.txt". Either email
-the file to me at bkb@cpan.org, or copy and paste it into a github
-issue.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -332,3 +300,4 @@ incompatibilities. Deflate compression could easily be added, so if you
 are interested, please contact the author.
 
 [% INCLUDE "author" %]
+[% INCLUDE "terminology" %]
