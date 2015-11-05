@@ -36,12 +36,19 @@ if (! -f "$Bin/inc/Devel/CheckLib.pm") {
     line ();
     exit 1;
 }
+line ();
+msg ("I have found $Bin/inc/Devel/CheckLib.pm.");
+msg ("You seem to be in the correct directory.");
 
 # Get the user's operating system.
 
 line ();
+msg ("Getting operating system info...");
 my @info = uname ();
-msg ("Your system info: @info");
+msg ("Your system info:");
+for (@info) {
+    msg ($_);
+}
 line ();
 msg ("I will try to locate libz on your computer.");
 msg ("I am now running Devel::CheckLib to find libz.");
@@ -57,6 +64,7 @@ if ($ok) {
 }
 else {
     msg ("libz could not be found by Devel::CheckLib.");
+    msg ("Please send this output to bkb\@cpan.org.");
 }
 
 exit;
