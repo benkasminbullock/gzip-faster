@@ -194,8 +194,8 @@ distribution. The following are some extra notes for people who get
 stuck.
 
 Gzip::Faster requires the compression library C<zlib> (also called
-C<libz>) to be installed. The following message printed during perl
-Makefile.PL:
+C<libz>) to be installed. The following message printed during C<perl
+Makefile.PL>:
 
     Warning (mostly harmless): No library found for -lz
 
@@ -203,10 +203,7 @@ or the following message at run-time:
 
     undefined symbol: inflate
 
-indicate that Gzip::Faster was unable to link to C<libz>. If you think
-that zlib is installed on your computer, please run the script
-mentioned under L</Debugging script> and send the results to the
-module author (see L</AUTHOR>).
+indicate that Gzip::Faster was unable to link to C<libz>.
 
 =head2 Ubuntu Linux
 
@@ -219,14 +216,9 @@ following command:
 
 Unfortunately at this time the module doesn't seem to install on
 ActiveState Perl. You can check the current status at
-L<http://code.activestate.com/ppm/Gzip-Faster/>. At the time of 0.13
-it seems to fail with an error message
-
-    Can't link/include C library 'zlib.h', 'z', aborting.
-
-However, the module seems to install without problems on Strawberry
-Perl, so if you cannot install via ActiveState, you may want to try
-that instead.
+L<http://code.activestate.com/ppm/Gzip-Faster/>. However, the module
+seems to install without problems on Strawberry Perl, so if you cannot
+install via ActiveState, you could try that instead.
 
 =head1 ACKNOWLEDGEMENTS
 

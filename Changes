@@ -1,7 +1,7 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.13_02 2015-11-05
-* Remove Devel::CheckLib from distribution
+0.14 2015-11-06
+* Remove dependence on Devel::CheckLib from distribution
 
 0.13 2015-10-20
 * Minor speed improvement for short strings
