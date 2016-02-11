@@ -4,7 +4,7 @@ use strict;
 use Template;
 use FindBin '$Bin';
 use Path::Tiny;
-use Perl::Build 'get_version';
+use Perl::Build qw/get_version get_commit/;
 
 my $pod = "$Bin/lib/Gzip/Faster.pod";
 
@@ -44,6 +44,7 @@ for my $type (qw/short long/) {
     }
 }
 $vars{version} = get_version ();
+$vars{commit} = get_commit ();
 chmod 0644, $pod;
 $tt->process ("$pod.tmpl", \%vars, $pod) or die '' . $tt->error ();
 chmod 0444, $pod;
