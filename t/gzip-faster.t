@@ -59,8 +59,15 @@ if (-f $fgz) {
 
 gunzip_file ("$FindBin::Bin/index.html.gz");
 
-done_testing ();
+for my $test (0, 10101) {
+    my $binary = pack "N", $test;
+    my $gzipped_binary = gzip ($binary);
+    my $ungzipped_binary = gunzip ($gzipped_binary);
+    is ($ungzipped_binary, $binary, "Round trip with $test as packed");
+    my $unpacked_ungzipped_binary = unpack "N", $ungzipped_binary;
+    cmp_ok ($unpacked_ungzipped_binary, '==', $test,
+	    "Round trip with $test ungzipped and unpacked");
+}
 
-# Local variables:
-# mode: perl
-# End:
+done_testing ();
+exit;
