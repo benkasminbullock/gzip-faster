@@ -1,6 +1,10 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
+use Config;
+use File::Temp 'tempfile';
+
+test_for_zlib ();
 
 my $pm = 'lib/Gzip/Faster.pm';
 my $pod = 'lib/Gzip/Faster.pod';
@@ -30,9 +34,39 @@ WriteMakefile (
 	    },
 #	    homepage => 'http://',
         },
+	x_contributors => [
+	    'Aristotle Pagaltzis',
+	    'zgrim',
+	],
     },
     MIN_PERL_VERSION => '5.008001',
     OBJECT => 'Faster.o',
     LIBS => '-lz',
 #    OPTIMIZE => '-Wall -g -O',
 );
+
+exit;
+
+sub test_for_zlib
+{
+    # Test for zlib. If zlib doesn't seem to be present, die.
+
+    my $c = <<'EOF';
+#include <zlib.h>
+#include <stdio.h>
+int main (void) { printf ("%s\n", zlibVersion ()); return 0; }
+EOF
+    my ($fh, $filename) = tempfile ("tempXXXXXX");
+    print $fh $c;
+    close $fh or die "Can't close $filename: $!";
+    my $cfilename = "$filename.c";
+    rename $filename, $cfilename or die "Can't rename $filename to $cfilename: $!";
+    my $status = system ("$Config{cc} -o $filename $cfilename -lz");
+    if ($status != 0) {
+	die "You don't seem to have zlib available on your system.";
+    }
+    unlink $cfilename or warn "Could not delete temp file $cfilename";
+    unlink $filename or warn "Could not delete temp file $filename";
+
+    # OK
+}

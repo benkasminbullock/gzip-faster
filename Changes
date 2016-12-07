@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.14_01 2016-12-07
+
+* Test for zlib in Makefile.PL
+
 0.14 2015-11-06
 * Remove dependence on Devel::CheckLib from distribution
 
