@@ -79,10 +79,11 @@ L<Compress::Raw::Zlib>.
 
 =head2 Short text
 
-The compression and decompression parts test
-the performance of the modules on a short piece of English text.
+This section compares the performance of Gzip::Faster and other
+modules on a short piece of English text. These results are produced
+by the file F<bench/benchmarks.pl> in the distribution.
 
-According to my results, Gzip::Faster is about five times faster to
+According to these results, Gzip::Faster is about five times faster to
 load, seven times faster to compress, and twenty-five times faster to
 uncompress than L<IO::Compress::Gzip> and
 L<IO::Uncompress::Gunzip>. Round trips are about ten times faster with
@@ -117,7 +118,7 @@ Here is a comparison of gunzip (decompression) only:
 
 [% short.gunzip | indent (4) %]
 
-The test file is in "bench/benchmark.pl" in the distribution.
+The test file is in F<bench/benchmark.pl> in the distribution.
 
 =head2 Long text
 

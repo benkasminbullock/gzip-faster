@@ -10,6 +10,9 @@ use IO::Uncompress::Gunzip 'gunzip';
 use Gzip::Faster;
 use Compress::Raw::Zlib;
 
+# Switch the comment on the following lines to get the long test.
+
+#my $testinput = 'chinese';
 my $testinput = 'english';
 
 my $testtype = 'speed';
