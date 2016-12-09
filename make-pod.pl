@@ -31,8 +31,11 @@ my $edir = "$Bin/bench";
 my @fields = qw/versions size load round gzip gunzip/;
 for my $type (qw/short long/) {
     my $file = "$edir/$type.output";
-    if (! -f $file || -M $file > -M "$edir/benchmark.pl") {
+    if (! -f $file) {
 	die "Rebuild benchmarks file '$file'";
+    }
+    if (-M $file > -M "$edir/benchmark.pl") {
+	warn "Outdated benchmarks file '$file'";
     }
     my $p = path ($file);
     my $input = $p->slurp ();

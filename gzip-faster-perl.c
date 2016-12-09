@@ -17,6 +17,15 @@
 		   #x, zlib_status);				 \
 	}							 \
 
+typedef struct
+{
+    /* Gzip, not deflate or inflate. */
+    unsigned int is_gzip : 1;
+    /* "Raw" inflate or deflate without adler32 check. */
+    unsigned int is_raw : 1;
+}
+gzip_faster_t;
+
 /* The following code works perfectly OK, but setting the "extra"
    field in a gzip header trips bugs in some browsers (FireFox to be
    precise, Internet Explorer, Opera, and Chrome have no problem with
@@ -45,7 +54,7 @@ etc. */
 #endif /* def COPY_PERL */
 
 static SV *
-gzip_faster (SV * plain)
+gzip_faster (gzip_faster_t * gz, SV * plain)
 {
     SV * zipped;
     z_stream strm;
@@ -55,6 +64,8 @@ gzip_faster (SV * plain)
     int zlib_status;
     /* This holds the stuff. */
     unsigned char out_buffer[CHUNK];
+    /* windowBits, adjusted for monkey business. */
+    int wb = windowBits;
 
 #ifdef COPY_PERL
 
@@ -77,9 +88,20 @@ gzip_faster (SV * plain)
     strm.opaque = Z_NULL;
 
     level = Z_DEFAULT_COMPRESSION;
-    CALL_ZLIB (deflateInit2 (& strm, level, Z_DEFLATED,
-			     windowBits + DEFLATE_ENABLE_ZLIB_GZIP,
-			     8, Z_DEFAULT_STRATEGY));
+    wb = windowBits;
+    if (gz->is_gzip) {
+	if (gz->is_raw) {
+	    croak ("Raw deflate and gzip are incompatible");
+	}
+	wb += DEFLATE_ENABLE_ZLIB_GZIP;
+    }
+    else {
+	if (gz->is_raw) {
+	    wb = -wb;
+	}
+    }
+    CALL_ZLIB (deflateInit2 (& strm, level, Z_DEFLATED, wb, 8,
+			     Z_DEFAULT_STRATEGY));
 
 #ifdef COPY_PERL
 
@@ -140,7 +162,7 @@ gzip_faster (SV * plain)
 }
 
 static SV *
-gunzip_faster (SV * zipped)
+gunzip_faster (gzip_faster_t * gz, SV * zipped)
 {
     SV * plain;
 
@@ -152,6 +174,7 @@ gunzip_faster (SV * zipped)
     unsigned char out_buffer[CHUNK];
     /* The message from zlib. */
     int zlib_status;
+    int wb = windowBits;
 
 #ifdef COPY_PERL
 
@@ -173,7 +196,19 @@ gunzip_faster (SV * zipped)
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
 
-    CALL_ZLIB (inflateInit2 (& strm, windowBits + INFLATE_ENABLE_ZLIB_GZIP));
+    wb = windowBits;
+    if (gz->is_gzip) {
+	if (gz->is_raw) {
+	    croak ("Raw deflate and gzip are incompatible");
+	}
+	wb += INFLATE_ENABLE_ZLIB_GZIP;
+    }
+    else {
+	if (gz->is_raw) {
+	    wb = -wb;
+	}
+    }
+    CALL_ZLIB (inflateInit2 (& strm, wb));
 
 #ifdef COPY_PERL
 
@@ -246,5 +281,3 @@ gunzip_faster (SV * zipped)
 
     return plain;
 }
-
-

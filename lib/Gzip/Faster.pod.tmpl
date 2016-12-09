@@ -1,4 +1,7 @@
 [% start_year = 2014 %]
+[% MACRO since(version) BLOCK -%]
+This was added to the module in version [% version %].
+[%- END %]
 =encoding UTF-8
 
 =head1 NAME
@@ -70,6 +73,41 @@ compressed content to 'file.gz'. There is no return value. The errors
 are the same as L</gzip>, plus this may also throw an error if C<open>
 fails. As of this version, it does not write any gzip header
 information to F<file.gz>.
+
+=head2 deflate
+
+    my $deflated = deflate ($plain);
+
+This is similar to L</gzip> except that it doesn't write the gzip
+header information. The output can be inflated either with L</inflate>
+or with L</gunzip>.
+
+[% since('0.16') %]
+
+=head2 inflate
+
+    my $inflated = inflate ($deflated);
+
+Inflate the output of L</deflate>. In practice, this is essentially
+identical to L</gunzip>, and it's included only for completeness.
+
+[% since('0.16') %]
+
+=head2 deflate_raw
+
+This is similar to L</deflate> except that it doesn't write the check
+sum value in the data at all. The output must be inflated with
+L</inflate_raw>.
+
+[% since('0.16') %]
+
+=head2 inflate_raw
+
+This inflates data output by L</deflate_raw>. Although the code is
+basically similar to L</inflate> and L</gunzip>, it won't work on the
+output of L</gzip> and L</deflate>.
+
+[% since('0.16') %]
 
 =head1 PERFORMANCE
 
@@ -159,11 +197,10 @@ library's speed is the main factor.
 
 =head1 BUGS
 
-There is no deflate compression in the module. There is no way to
-select the level of compression. The level of compression offered by
-this module is the zlib default one, which is what you get if you run
-the command-line program gzip on a file without the options like
-C<--best> or C<--fast>.
+There is no way to select the level of compression. The level of
+compression offered by this module is the zlib default one, which is
+what you get if you run the command-line program gzip on a file
+without the options like C<--best> or C<--fast>.
 
 The module source code includes disabled functionality to round-trip
 Perl flags. I applied this to preserving Perl's "utf8" flag. However,
@@ -190,7 +227,12 @@ or
 
     use Gzip::Faster 'gunzip';
 
-whereby you only get C<gunzip> and not the other functions exported.
+whereby you only get C<gunzip> and not the other functions
+exported. The functions L</inflate>, L</deflate>, L</inflate_raw> and
+L</deflate_raw> are exported on demand only. You can export all the
+functions from the module using
+
+    use Gzip::Faster ':all';
 
 =head1 INSTALLATION
 
@@ -237,6 +279,9 @@ zgrim reported an important bug related to zlib.
 
 Aristotle Pagaltzis contributed the benchmarking code for
 L<Compress::Raw::Zlib>.
+
+The tests in F<t/png.t> use material taken from
+L<Image::PNG::Write::BW> by Andrea Nall (<ANALL>).
 
 =head1 SEE ALSO
 
@@ -297,9 +342,6 @@ The code's ancestor is the example program C<zpipe> supplied with
 zlib. See L<http://zlib.net/zpipe.c>. Gzip::Faster is little more than
 C<zpipe> reading to and and writing from Perl scalars. 
 
-The reason this module only offers gzip and not deflate compression is
-that gzip is more common on the web, due to some browser
-incompatibilities. Deflate compression could easily be added, so if you
-are interested, please contact the author.
+Version 0.16 added L</deflate> and related functions.
 
 [% INCLUDE "author" %]

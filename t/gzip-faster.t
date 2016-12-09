@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use FindBin;
 use Test::More;
-use Gzip::Faster;
+use Gzip::Faster ':all';
 
 my $gzipped_empty = gzip ('');
 is ($gzipped_empty, undef, "Empty input results in the undefined value");
@@ -12,7 +12,14 @@ is ($gzipped_empty, undef, "Empty input results in the undefined value");
 my $tests = 'test this';
 my $zipped = gzip ($tests);
 my $unzipped = gunzip ($zipped);
-is ($unzipped, $tests, "round trip");
+is ($unzipped, $tests, "round trip with gzip and gunzip");
+my $deflated = deflate ($tests);
+my $inflated = inflate ($deflated);
+is ($inflated, $tests, "round trip with deflate and inflate");
+is ($unzipped, $tests, "round trip with gzip and gunzip");
+my $raw_deflated = deflate_raw ($tests);
+my $raw_inflated = inflate_raw ($raw_deflated);
+is ($raw_inflated, $tests, "round trip with deflate_raw and inflate_raw");
 # Test for ungzipped input in gunzip.
 eval {
     gunzip ('ragamuffin');

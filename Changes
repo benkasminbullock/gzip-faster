@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.15_01 2016-12-09
+
+* Add deflate, inflate, deflate_raw, inflate_raw methods
+
 0.15 2016-12-07
 
 * Test for zlib in Makefile.PL

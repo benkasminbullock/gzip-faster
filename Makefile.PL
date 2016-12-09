@@ -35,8 +35,8 @@ WriteMakefile (
 #	    homepage => 'http://',
         },
 	x_contributors => [
-	    'Aristotle Pagaltzis <ARISTOTLE>',
-	    'zgrim@cpan.org',
+	    'Aristotle Pagaltzis <aristotle@cpan.org>',
+	    'zgrim <zgrim@cpan.org>',
 	],
     },
     MIN_PERL_VERSION => '5.008001',

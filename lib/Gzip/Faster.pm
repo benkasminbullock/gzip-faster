@@ -1,11 +1,13 @@
 package Gzip::Faster;
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT = qw/gzip gunzip gzip_file gunzip_file gzip_to_file/;
 use warnings;
 use strict;
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT = qw/gzip gunzip gzip_file gunzip_file gzip_to_file/;
+our @EXPORT_OK = qw/deflate inflate deflate_raw inflate_raw/;
+our %EXPORT_TAGS = ('all' => [@EXPORT, @EXPORT_OK]);
 use Carp;
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 require XSLoader;
 XSLoader::load ('Gzip::Faster', $VERSION);
 
