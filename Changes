@@ -1,8 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.16 2016-12-09
+0.15_02 2016-12-09
 
 * Add deflate, inflate, deflate_raw, inflate_raw methods
+* Experimental new/zip/unzip/copy_perl_flags methods
 
 0.15 2016-12-07
 

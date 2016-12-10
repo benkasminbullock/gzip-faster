@@ -82,6 +82,10 @@ This is similar to L</gzip> except that it doesn't write the gzip
 header information. The output can be inflated either with L</inflate>
 or with L</gunzip>.
 
+There is 
+an example of using L</deflate> to write a PNG in the module
+in F<t/png.t>.
+
 [% since('0.16') %]
 
 =head2 inflate
@@ -100,9 +104,6 @@ The output looks like this:
 
 [% INCLUDE "inflate-out.txt" | indent(4) %]
 
-There is also an example of using L</deflate> to write a PNG in the
-module in F<t/png.t>.
-
 [% since('0.16') %]
 
 =head2 deflate_raw
@@ -120,6 +121,21 @@ basically similar to L</inflate> and L</gunzip>, it won't work on the
 output of L</gzip> and L</deflate>.
 
 [% since('0.16') %]
+
+=head1 METHODS
+
+=head2 new
+
+=head2 zip
+
+=head2 unzip
+
+=head2 copy_perl_flags
+
+    $gf->copy_perl_flags (1);
+
+Copy the Perl flags like the utf8 flag into the header of the gzipped
+data.
 
 =head1 PERFORMANCE
 

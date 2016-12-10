@@ -37,9 +37,9 @@ for my $type (qw/short long/) {
     if (! -f $file) {
 	die "Rebuild benchmarks file '$file'";
     }
-    if (-M $file > -M "$edir/benchmark.pl") {
-	warn "Outdated benchmarks file '$file'";
-    }
+#    if (-M $file > -M "$edir/benchmark.pl") {
+#	warn "Outdated benchmarks file '$file'";
+#    }
     my $p = path ($file);
     my $input = $p->slurp ();
     my @stuff = split /-{50}/, $input;

@@ -28,35 +28,57 @@ ok ($@, "error with ungzipped input");
 like ($@, qr/Data input to inflate is not in libz format/,
       "got correct error message");
 
-# TODO: {
-#     local $TODO = 'This functionality is disabled due to a FireFox bug';
-#     use utf8;
-#     my $kujira = '鯨';
-#     if (! utf8::is_utf8 ($kujira)) {
-# 	die "Sanity check failed";
-#     }
-#     ok (utf8::is_utf8 (gunzip (gzip ($kujira))), "UTF-8 round trip");
+use utf8;
+my $kujira = '鯨';
+if (! utf8::is_utf8 ($kujira)) {
+    die "Sanity check failed";
+}
 
-# };
+my $gf1 = Gzip::Faster->new ();
+# round trips involving object and non-object
+my $rt;
+my $input = 'monkey shines';
+eval {
+    $rt = gunzip ($gf1->zip ($input));
+};
+ok (! $@, "zip method doesn't crash");
+if ($@) {
+    note ("'$@'");
+}
+ok ($rt, "Got round trip value");
+is ($rt, $input, "Round trip is OK");
+eval {
+    $rt = $gf1->unzip (gzip ($input));
+};
+ok (! $@, "unzip method doesn't crash");
+if ($@) {
+    note ($@);
+}
+ok ($rt, "Got round trip value");
+is ($rt, $input, "Round trip is OK");
 
-# # This tests the converse of the above.
+my $gf = Gzip::Faster->new ();
+$gf->copy_perl_flags (1);
+ok (utf8::is_utf8 ($gf->unzip ($gf->zip ($kujira))), "UTF-8 round trip");
 
-# no utf8;
-# my $iruka = '海豚';
-# if (utf8::is_utf8 ($iruka)) {
-#     die "Sanity check failed";
-# }
-# ok (! utf8::is_utf8 (gunzip (gzip ($iruka))), "no UTF-8 round trip");
+# This tests the converse of the above.
+
+no utf8;
+my $iruka = '海豚';
+if (utf8::is_utf8 ($iruka)) {
+    die "Sanity check failed";
+}
+ok (! utf8::is_utf8 ($gf->unzip ($gf->zip ($iruka))), "no UTF-8 round trip");
 
 my $f = "$FindBin::Bin/gzip-faster.t";
 my $fgz = "$f.gz";
 my $zippedf = gzip_file ($f);
-ok ($zippedf);
+ok ($zippedf, "Got gzipped file from $f");
 open my $out, ">:raw", $fgz or die $!;
 print $out $zippedf;
 close $out or die $!;
 my $plain = gunzip_file ($fgz);
-ok ($plain);
+ok ($plain, "Got back contents from $fgz");
 if (-f $fgz) {
     unlink ($fgz);
 }

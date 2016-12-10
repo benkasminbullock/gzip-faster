@@ -6,6 +6,8 @@
 
 #include "gzip-faster-perl.c"
 
+typedef gzip_faster_t * Gzip__Faster;
+
 MODULE=Gzip::Faster PACKAGE=Gzip::Faster
 
 PROTOTYPES: DISABLE
@@ -15,9 +17,10 @@ SV * gzip (plain)
 PREINIT:
 	gzip_faster_t gz;
 CODE:
+	gz.in = plain;
 	gz.is_gzip = 1;
 	gz.is_raw = 0;
-	RETVAL = gzip_faster (& gz, plain);
+	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
 
@@ -28,7 +31,8 @@ PREINIT:
 CODE:
 	gz.is_gzip = 1;
 	gz.is_raw = 0;
-	RETVAL = gunzip_faster (&gz, zipped);
+	gz.in = zipped;
+	RETVAL = gunzip_faster (&gz);
 OUTPUT:
 	RETVAL
 
@@ -37,9 +41,10 @@ SV * deflate (plain)
 PREINIT:
 	gzip_faster_t gz;
 CODE:
+	gz.in = plain;
 	gz.is_gzip = 0;
 	gz.is_raw = 0;
-	RETVAL = gzip_faster (& gz, plain);
+	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
 
@@ -50,7 +55,8 @@ PREINIT:
 CODE:
 	gz.is_gzip = 0;
 	gz.is_raw = 0;
-	RETVAL = gunzip_faster (& gz, deflated);
+	gz.in = deflated;
+	RETVAL = gunzip_faster (& gz);
 OUTPUT:
 	RETVAL
 
@@ -59,9 +65,10 @@ SV * deflate_raw (plain)
 PREINIT:
 	gzip_faster_t gz;
 CODE:
+	gz.in = plain;
 	gz.is_gzip = 0;
 	gz.is_raw = 1;
-	RETVAL = gzip_faster (& gz, plain);
+	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
 
@@ -72,6 +79,50 @@ PREINIT:
 CODE:
 	gz.is_gzip = 0;
 	gz.is_raw = 1;
-	RETVAL = gunzip_faster (& gz, deflated);
+	gz.in = deflated;
+	RETVAL = gunzip_faster (& gz);
 OUTPUT:
 	RETVAL
+
+Gzip::Faster
+new (class)
+    	const char * class;
+CODE:
+	Newxz (RETVAL, 1, gzip_faster_t);
+	RETVAL->is_gzip = 1;
+	RETVAL->is_raw = 0;
+OUTPUT:
+	RETVAL
+
+void
+DESTROY (gf)
+	Gzip::Faster gf
+CODE:
+	Safefree (gf);
+
+SV *
+zip (gf, plain)
+	Gzip::Faster gf
+	SV * plain
+CODE:
+	gf->in = plain;
+	RETVAL = gzip_faster (gf);
+OUTPUT:
+	RETVAL
+
+SV *
+unzip (gf, deflated)
+	Gzip::Faster gf
+	SV * deflated
+CODE:
+	gf->in = deflated;
+	RETVAL = gunzip_faster (gf);
+OUTPUT:
+	RETVAL
+
+void
+copy_perl_flags (gf, on_off)
+	Gzip::Faster gf
+	SV * on_off
+CODE:
+	gf->copy_perl_flags = SvTRUE (on_off);
