@@ -42,7 +42,7 @@ WriteMakefile (
     MIN_PERL_VERSION => '5.008001',
     OBJECT => 'Faster.o',
     LIBS => '-lz',
-    OPTIMIZE => '-Wall -g -O',
+#    OPTIMIZE => '-Wall -g -O',
 );
 
 exit;
