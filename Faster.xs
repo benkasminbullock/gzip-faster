@@ -20,6 +20,7 @@ CODE:
 	gz.in = plain;
 	gz.is_gzip = 1;
 	gz.is_raw = 0;
+	gz.user_object = 0;
 	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
@@ -32,6 +33,7 @@ CODE:
 	gz.is_gzip = 1;
 	gz.is_raw = 0;
 	gz.in = zipped;
+	gz.user_object = 0;
 	RETVAL = gunzip_faster (&gz);
 OUTPUT:
 	RETVAL
@@ -44,6 +46,7 @@ CODE:
 	gz.in = plain;
 	gz.is_gzip = 0;
 	gz.is_raw = 0;
+	gz.user_object = 0;
 	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
@@ -56,6 +59,7 @@ CODE:
 	gz.is_gzip = 0;
 	gz.is_raw = 0;
 	gz.in = deflated;
+	gz.user_object = 0;
 	RETVAL = gunzip_faster (& gz);
 OUTPUT:
 	RETVAL
@@ -68,6 +72,7 @@ CODE:
 	gz.in = plain;
 	gz.is_gzip = 0;
 	gz.is_raw = 1;
+	gz.user_object = 0;
 	RETVAL = gzip_faster (& gz);
 OUTPUT:
 	RETVAL
@@ -80,6 +85,7 @@ CODE:
 	gz.is_gzip = 0;
 	gz.is_raw = 1;
 	gz.in = deflated;
+	gz.user_object = 0;
 	RETVAL = gunzip_faster (& gz);
 OUTPUT:
 	RETVAL
@@ -89,10 +95,10 @@ new (class)
     	const char * class;
 CODE:
 	Newxz (RETVAL, 1, gzip_faster_t);
-	RETVAL->file_name = 0;
-	RETVAL->is_gzip = 1;
-	RETVAL->is_raw = 0;
-	RETVAL->user_object = 1;
+	new_user_object (RETVAL);
+	if (! class) {
+		croak ("No class");
+	}
 OUTPUT:
 	RETVAL
 
@@ -106,10 +112,17 @@ CODE:
 	gf_delete_file_name (gf);
 	Safefree (gf);
 
+void
+set_level (gf, level = Z_DEFAULT_COMPRESSION)
+	Gzip::Faster gf;
+	int level;
+CODE:
+	set_compression_level (gf, level);
+
 SV *
 zip (gf, plain)
-	Gzip::Faster gf
-	SV * plain
+	Gzip::Faster gf;
+	SV * plain;
 CODE:
 	gf->in = plain;
 	RETVAL = gzip_faster (gf);

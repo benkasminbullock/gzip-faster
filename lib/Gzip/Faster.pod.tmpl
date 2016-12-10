@@ -141,11 +141,17 @@ Defaults to gzip compression.
 
     my $zipped = $gf->zip ($plain);
 
+Compress C<$plain>. The type of compression can be set with L</gzip>
+and L</raw>.
+
 [% since('0.16') %]
 
 =head2 unzip
 
     my $plain = $gf->unzip ($zipped);
+
+Uncompress C<$zipped>. The type of uncompression can be set with
+L</gzip> and L</raw>.
 
 [% since('0.16') %]
 
@@ -201,6 +207,17 @@ The sequence
     $gf->raw (0);
 
 ends up with C<$gf> in the non-raw inflate format.
+
+[% since('0.16') %]
+
+=head2 level
+
+    $gf->level (9);
+
+Set the compression level, from 0 (no compression) to 9 (best
+compression). Values outside the levels cause a warning and the level
+to be set to the nearest valid value, for example a value of 100
+causes the level to be set to 9.
 
 [% since('0.16') %]
 
@@ -304,12 +321,14 @@ actually smaller than the input.
 
 =head2 Browser bugs and Gzip::Faster
 
+Some web browsers have bugs which may affect users of this module.
+
 Using L</copy_perl_flags> with utf8-encoded text trips a browser bug
 in the Firefox web browser where it produces a content encoding error
 message.
 
-Using deflate on world-wide web pages on the internet, rather than
-gzip compression, trips browser bugs in some versions of Internet
+Using deflate rather than gzip compression on world-wide web pages on
+the internet, trips browser bugs in some versions of Internet
 Explorer.
 
 =head1 EXPORTS

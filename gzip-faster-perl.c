@@ -71,7 +71,9 @@ gf_set_up (gzip_faster_t * gf)
     gf->strm.zalloc = Z_NULL;
     gf->strm.zfree = Z_NULL;
     gf->strm.opaque = Z_NULL;
-    gf->level = Z_DEFAULT_COMPRESSION;
+    if (! gf->user_object) {
+	gf->level = Z_DEFAULT_COMPRESSION;
+    }
     gf->wb = windowBits;
 }
 
@@ -335,4 +337,29 @@ gunzip_faster (gzip_faster_t * gf)
 	}
     }
     return plain;
+}
+
+static void
+new_user_object (gzip_faster_t * gf)
+{
+    gf->file_name = 0;
+    gf->is_gzip = 1;
+    gf->is_raw = 0;
+    gf->user_object = 1;
+    gf->level = Z_DEFAULT_COMPRESSION;
+}
+
+static void
+set_compression_level (gzip_faster_t * gf, int level)
+{
+    if (level < Z_NO_COMPRESSION) {
+	warn ("Cannot set compression level to less than %d",
+	      Z_NO_COMPRESSION);
+	level = Z_NO_COMPRESSION;
+    }
+    else if (level > Z_BEST_COMPRESSION) {
+	warn ("Cannot set compression level to more than %d",
+	      Z_BEST_COMPRESSION);
+	level = Z_BEST_COMPRESSION;
+    }
 }
