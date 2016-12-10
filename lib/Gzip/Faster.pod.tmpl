@@ -31,11 +31,24 @@ corresponding to git commit L<[% commit.commit %]|[% info.repo
 
 This module compresses to and decompresses from the gzip format.
 
-The module offers two basic functions, L</gzip> and L</gunzip>, which
-convert scalars to and from gzip format, and three convenience
-functions: L</gzip_file> reads a file then compresses it;
-L</gunzip_file> reads a file then uncompresses it; and L</gzip_to_file>
-compresses a scalar and writes it to a file.
+The basic functions of the module are L</gzip> and L</gunzip>, which
+convert scalars to and from gzip format. There are also three
+convenience functions built on these two: L</gzip_file> reads a file
+then compresses it; L</gunzip_file> reads a file then uncompresses it;
+and L</gzip_to_file> compresses a scalar and writes it to a file.
+
+Further to this, L</deflate> and L</inflate> work with the deflate
+format, which is the same as the gzip format except it has no header
+information. L</deflate_raw> and L</inflate_raw> work with the
+bare-bones version of this format without checksums.
+
+To control the compression better, use L</new>. The returned object
+compresses via the L</zip> and L</unzip> methods. The type of
+compression can be toggled with L</gzip_format> and L</raw>. A file
+name can be set in and retrieved from the gzip header with
+L</file_name>. The level of compression can be altered with
+L</level>. Perl flags can be copied into the gzip header using
+L</copy_perl_flags>.
 
 =head1 FUNCTIONS
 
@@ -308,11 +321,6 @@ For longer files, Gzip::Faster is not much faster and the underlying
 library's speed is the main factor.
 
 =head1 BUGS
-
-There is no way to select the level of compression. The level of
-compression offered by this module is the zlib default one, which is
-what you get if you run the command-line program gzip on a file
-without the options like C<--best> or C<--fast>.
 
 The module doesn't check whether the input of L</gzip> is already
 gzipped, and it doesn't check whether the compression was
