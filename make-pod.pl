@@ -7,10 +7,13 @@ use Path::Tiny;
 use Perl::Build qw/get_info get_commit/;
 
 my $pod = "$Bin/lib/Gzip/Faster.pod";
+my $c = "$Bin/gzip-faster-perl.c";
+my $xs = "$Bin/Faster.xs";
 
 # Template toolkit variable holder
 
 my %vars;
+
 
 my $tt = Template->new (
     ABSOLUTE => 1,

@@ -25,7 +25,7 @@ eval {
     gunzip ('ragamuffin');
 };
 ok ($@, "error with ungzipped input");
-like ($@, qr/Data input to gunzip is not in gzip format/,
+like ($@, qr/Data input to inflate is not in libz format/,
       "got correct error message");
 
 # TODO: {

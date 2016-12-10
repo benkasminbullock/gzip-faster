@@ -88,8 +88,20 @@ or with L</gunzip>.
 
     my $inflated = inflate ($deflated);
 
-Inflate the output of L</deflate>. In practice, this is essentially
-identical to L</gunzip>, and it's included only for completeness.
+Inflate the output of L</deflate>. Although the code is slightly
+different, for all practical purposes this is identical to L</gunzip>,
+and it's included only for completeness.
+
+The following example demonstrates using C<inflate> with a PNG image.
+
+[% INCLUDE "inflate.pl" | xtidy %]
+
+The output looks like this:
+
+[% INCLUDE "inflate-out.txt" | indent(4) %]
+
+There is also an example of using L</deflate> to write a PNG in the
+module in F<t/png.t>.
 
 [% since('0.16') %]
 
@@ -233,6 +245,33 @@ L</deflate_raw> are exported on demand only. You can export all the
 functions from the module using
 
     use Gzip::Faster ':all';
+
+=head1 DIAGNOSTICS
+
+All errors are fatal.
+
+=over
+
+=item Data input to inflate is not in libz format
+
+The data given to L</gunzip>, L</inflate>, or L</inflate_raw> was not
+in the expected format.
+
+=item Error opening '$file': $!
+
+This may be produced by L</gunzip_file>, L</gzip_file>, or L</gzip_to_file>.
+
+=item Error closing '$file': $!
+
+This may be produced by L</gunzip_file>, L</gzip_file>, or L</gzip_to_file>.
+
+=back
+
+There are a number of other diagnostics but these are meant to detect
+bugs. A complete list of the other can be obtained by running the
+C<parse-diagnostics> script which comes with L<Parse::Diagnostics> on
+the files F<gzip-faster-perl.c> and F<lib/Gzip/Faster.pm> in the
+distribution.
 
 =head1 INSTALLATION
 

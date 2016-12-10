@@ -13,7 +13,7 @@
 	zlib_status = x;					 \
 	if (zlib_status < 0) {					 \
 	    deflateEnd (& strm);				 \
-	    croak ("zlib call %s returned a bad status %d",	 \
+	    croak ("zlib call %s returned error status %d",	 \
 		   #x, zlib_status);				 \
 	}							 \
 
@@ -65,7 +65,7 @@ gzip_faster (gzip_faster_t * gz, SV * plain)
     /* This holds the stuff. */
     unsigned char out_buffer[CHUNK];
     /* windowBits, adjusted for monkey business. */
-    int wb = windowBits;
+    int wb;
 
 #ifdef COPY_PERL
 
@@ -174,7 +174,7 @@ gunzip_faster (gzip_faster_t * gz, SV * zipped)
     unsigned char out_buffer[CHUNK];
     /* The message from zlib. */
     int zlib_status;
-    int wb = windowBits;
+    int wb;
 
 #ifdef COPY_PERL
 
@@ -233,12 +233,12 @@ gunzip_faster (gzip_faster_t * gz, SV * zipped)
 
 	case Z_DATA_ERROR:
 	    inflateEnd (& strm);
-	    croak ("Data input to gunzip is not in gzip format");
+	    croak ("Data input to inflate is not in libz format");
 	    break;
 
 	case Z_MEM_ERROR:
 	    inflateEnd (& strm);
-	    croak ("Out of memory in gunzip");
+	    croak ("Out of memory during inflate");
 
 	case Z_STREAM_ERROR:
 	    inflateEnd (& strm);

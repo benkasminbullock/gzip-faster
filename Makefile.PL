@@ -37,6 +37,7 @@ WriteMakefile (
 	x_contributors => [
 	    'Aristotle Pagaltzis <aristotle@cpan.org>',
 	    'zgrim <zgrim@cpan.org>',
+	    'Andrea Nall <anall@cpan.org>',
 	],
     },
     MIN_PERL_VERSION => '5.008001',
