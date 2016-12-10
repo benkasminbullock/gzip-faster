@@ -1,7 +1,6 @@
 #!/home/ben/software/install/bin/perl
 use warnings;
 use strict;
-use utf8;
 use File::Slurper 'read_binary';
 use FindBin '$Bin';
 use Gzip::Faster 'inflate';

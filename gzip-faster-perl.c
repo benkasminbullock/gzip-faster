@@ -31,19 +31,19 @@ typedef struct
     unsigned char out_buffer[CHUNK];
     /* windowBits, adjusted for monkey business. */
     int wb;
+    /* Optional file name for gzip format.  This can only take values
+       for user-visible objects. */
+    SV * file_name;
     /* Gzip, not deflate or inflate. */
     unsigned int is_gzip : 1;
     /* "Raw" inflate or deflate without adler32 check. */
     unsigned int is_raw : 1;
     /* Copy Perl flags like UTF8 flag? */
     unsigned int copy_perl_flags : 1;
+    /* User can see this object? */
+    unsigned int user_object : 1;
 }
 gzip_faster_t;
-
-/* The following code works perfectly OK, but setting the "extra"
-   field in a gzip header trips bugs in some browsers (FireFox to be
-   precise, Internet Explorer, Opera, and Chrome have no problem with
-   this). */
 
 /* See "http://www.gzip.org/zlib/rfc-gzip.html". */
 
@@ -75,6 +75,43 @@ gf_set_up (gzip_faster_t * gf)
     gf->wb = windowBits;
 }
 
+static void
+gf_delete_file_name (gzip_faster_t * gf)
+{
+    if (! gf->user_object) {
+	croak ("THIS IS NOT A USER OBJECT");
+    }
+    if (gf->file_name) {
+	SvREFCNT_dec (gf->file_name);
+	gf->file_name = 0;
+    }
+}
+
+static void
+gf_set_file_name (gzip_faster_t * gf, SV * file_name)
+{
+    if (! gf->user_object) {
+	croak ("THIS IS NOT A USER OBJECT");
+    }
+    if (gf->file_name) {
+	gf_delete_file_name (gf);
+    }
+    SvREFCNT_inc (file_name);
+    gf->file_name = file_name;
+}
+
+static SV *
+gf_get_file_name (gzip_faster_t * gf)
+{
+    if (! gf->user_object) {
+	croak ("THIS IS NOT A USER OBJECT");
+    }
+    if (gf->file_name) {
+	return gf->file_name;
+    }
+    return & PL_sv_undef;
+}
+
 static SV *
 gzip_faster (gzip_faster_t * gf)
 {
@@ -82,8 +119,6 @@ gzip_faster (gzip_faster_t * gf)
     SV * zipped;
     /* The message from zlib. */
     int zlib_status;
-    gz_header header = {0};
-    unsigned char extra[EXTRA_LENGTH];
 
     gf_set_up (gf);
     if (gf->in_length == 0) {
@@ -105,17 +140,42 @@ gzip_faster (gzip_faster_t * gf)
 			     gf->wb, 8,
 			     Z_DEFAULT_STRATEGY));
 
-    if (gf->copy_perl_flags) {
-	memcpy (extra, GZIP_PERL_ID, GZIP_PERL_ID_LENGTH);
-	extra[GZIP_PERL_ID_LENGTH] = 0;
-	if (SvUTF8 (gf->in)) {
-	    extra[GZIP_PERL_ID_LENGTH] |= GZIP_PERL_UTF8;
+    if (gf->user_object) {
+	if (gf->is_gzip) {
+	    gz_header header = {0};
+	    unsigned char extra[EXTRA_LENGTH];
+	    /* Have at least one of the fields in the header been set? */
+	    int set_header;
+	    set_header = 0;
+	    if (gf->copy_perl_flags) {
+		memcpy (extra, GZIP_PERL_ID, GZIP_PERL_ID_LENGTH);
+		extra[GZIP_PERL_ID_LENGTH] = 0;
+		if (SvUTF8 (gf->in)) {
+		    extra[GZIP_PERL_ID_LENGTH] |= GZIP_PERL_UTF8;
+		}
+		header.extra = extra;
+		header.extra_len = EXTRA_LENGTH;
+		set_header++;
+	    }
+	    if (gf->file_name) {
+		char * fn;
+		fn = SvPV_nolen (gf->file_name);
+		header.name = (Bytef *) fn;
+		set_header++;
+	    }
+	    if (set_header) {
+		CALL_ZLIB (deflateSetHeader (& gf->strm, & header));
+	    }
 	}
-	header.extra = extra;
-	header.extra_len = EXTRA_LENGTH;
-	CALL_ZLIB (deflateSetHeader (& gf->strm, & header));
+	else {
+	    if (gf->copy_perl_flags) {
+		warn ("wrong format: perl flags not copied: use gzip_format(1)");
+	    }
+	    if (gf->file_name) {
+		warn ("wrong format: file name ignored: use gzip_format(1)");
+	    }
+	}
     }
-
     zipped = 0;
 
     do {
@@ -158,8 +218,15 @@ gzip_faster (gzip_faster_t * gf)
 	croak ("Zlib did not come to the end of the string");
     }
     deflateEnd (& gf->strm);
+    if (gf->user_object) {
+	if (gf->file_name) {
+	    gf_delete_file_name (gf);
+	}
+    }
     return zipped;
 }
+
+#define FILE_NAME_MAX 0x400
 
 static SV *
 gunzip_faster (gzip_faster_t * gf)
@@ -170,6 +237,7 @@ gunzip_faster (gzip_faster_t * gf)
     int zlib_status;
 
     gz_header header;
+    unsigned char name[FILE_NAME_MAX];
     unsigned char extra[EXTRA_LENGTH];
 
     gf_set_up (gf);
@@ -186,13 +254,20 @@ gunzip_faster (gzip_faster_t * gf)
 	}
     }
     CALL_ZLIB (inflateInit2 (& gf->strm, gf->wb));
-
-    if (gf->copy_perl_flags) {
-	header.extra = extra;
-	header.extra_max = EXTRA_LENGTH;
-	inflateGetHeader (& gf->strm, & header);
+    if (gf->user_object) {
+	if (gf->is_gzip) {
+	    if (gf->copy_perl_flags) {
+		header.extra = extra;
+		header.extra_max = EXTRA_LENGTH;
+	    }
+	    if (gf->file_name) {
+		gf_delete_file_name (gf);
+	    }
+	    header.name = name;
+	    header.name_max = NAME_MAX;
+	    inflateGetHeader (& gf->strm, & header);
+	}
     }
-
     plain = 0;
 
     do {
@@ -240,15 +315,23 @@ gunzip_faster (gzip_faster_t * gf)
 	croak ("Zlib did not come to the end of the string");
     }
     inflateEnd (& gf->strm);
-
-    if (gf->copy_perl_flags) {
-	if (strncmp ((const char *) header.extra, GZIP_PERL_ID,
-		     GZIP_PERL_ID_LENGTH) == 0) {
-	    unsigned is_utf8;
-	    is_utf8 = header.extra[GZIP_PERL_ID_LENGTH] & GZIP_PERL_UTF8;
-	    if (is_utf8) {
-		SvUTF8_on (plain);
+    if (gf->user_object && gf->is_gzip && header.done == 1) {
+	if (gf->copy_perl_flags) {
+	    if (strncmp ((const char *) header.extra, GZIP_PERL_ID,
+			 GZIP_PERL_ID_LENGTH) == 0) {
+		unsigned is_utf8;
+		is_utf8 = header.extra[GZIP_PERL_ID_LENGTH] & GZIP_PERL_UTF8;
+		if (is_utf8) {
+		    SvUTF8_on (plain);
+		}
 	    }
+	}
+	if (header.name && header.name_max > 0) {
+	    gf->file_name = newSVpv ((const char *) header.name, 0);
+	    SvREFCNT_inc (gf->file_name);
+	}
+	else {
+	    gf_delete_file_name (gf);
 	}
     }
     return plain;

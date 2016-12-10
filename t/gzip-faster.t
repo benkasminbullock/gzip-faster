@@ -57,6 +57,28 @@ if ($@) {
 ok ($rt, "Got round trip value");
 is ($rt, $input, "Round trip is OK");
 
+
+my $gfraw = Gzip::Faster->new ();
+$gfraw->raw (1);
+eval {
+    $rt = inflate_raw ($gfraw->zip ($input));
+};
+ok (! $@, "zip method doesn't crash");
+if ($@) {
+    note ("'$@'");
+}
+ok ($rt, "Got round trip value");
+is ($rt, $input, "Round trip is OK");
+eval {
+    $rt = $gfraw->unzip (deflate_raw ($input));
+};
+ok (! $@, "unzip method doesn't crash");
+if ($@) {
+    note ($@);
+}
+ok ($rt, "Got round trip value");
+is ($rt, $input, "Round trip is OK");
+
 my $gf = Gzip::Faster->new ();
 $gf->copy_perl_flags (1);
 ok (utf8::is_utf8 ($gf->unzip ($gf->zip ($kujira))), "UTF-8 round trip");
@@ -98,5 +120,19 @@ for my $test (0, 10101) {
 	    "Round trip with $test ungzipped and unpacked");
 }
 
+# Test adding names.
+
+my $fname = 'Philip Marlowe';
+my $text = 'Moose Malloy';
+my $gfnamein = Gzip::Faster->new ();
+my $gfnameout = Gzip::Faster->new ();
+print "Poo\n";
+$gfnamein->file_name ($fname);
+print "Poo\n";
+my $zippedwithname = $gfnamein->zip ($text);
+my $outwithname = $gfnameout->unzip ($zippedwithname);
+is ($outwithname, $text, "Output text with name is OK");
+my $name_out = $gfnameout->file_name ();
+is ($name_out, $fname, "Got file name back");
 done_testing ();
 exit;

@@ -89,8 +89,10 @@ new (class)
     	const char * class;
 CODE:
 	Newxz (RETVAL, 1, gzip_faster_t);
+	RETVAL->file_name = 0;
 	RETVAL->is_gzip = 1;
 	RETVAL->is_raw = 0;
+	RETVAL->user_object = 1;
 OUTPUT:
 	RETVAL
 
@@ -98,6 +100,10 @@ void
 DESTROY (gf)
 	Gzip::Faster gf
 CODE:
+	if (! gf->user_object) {
+		croak ("THIS IS NOT A USER-VISIBLE OBJECT");
+	}
+	gf_delete_file_name (gf);
 	Safefree (gf);
 
 SV *
@@ -122,7 +128,46 @@ OUTPUT:
 
 void
 copy_perl_flags (gf, on_off)
-	Gzip::Faster gf
-	SV * on_off
+	Gzip::Faster gf;
+	SV * on_off;
 CODE:
 	gf->copy_perl_flags = SvTRUE (on_off);
+
+void
+raw (gf, on_off)
+	Gzip::Faster gf;
+	SV * on_off;
+CODE:
+	gf->is_raw = SvTRUE (on_off);
+	gf->is_gzip = 0;
+
+void
+gzip_format (gf, on_off)
+	Gzip::Faster gf;
+	SV * on_off;
+CODE:
+	gf->is_gzip = SvTRUE (on_off);
+	gf->is_raw = 0;
+
+SV *
+file_name (gf, filename = 0)
+	Gzip::Faster gf;
+	SV * filename;
+CODE:
+	if (filename) {
+		gf_set_file_name (gf, filename);
+		/* We increment the reference count twice, once here
+		   because it returns its own value, and once in
+		   gf_set_file_name. Unless the user captures the
+		   following return value, Perl then decrements it by
+		   one as the return value is discarded, so it has to
+		   be done twice. */
+		SvREFCNT_inc (filename);
+		RETVAL = filename;
+	}
+	else {
+		SvREFCNT_inc (gf->file_name);
+		RETVAL = gf_get_file_name (gf);
+	}
+OUTPUT:
+	RETVAL

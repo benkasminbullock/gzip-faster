@@ -1,4 +1,13 @@
 [% start_year = 2014 %]
+[% MACRO example(file) BLOCK %]
+[%- pl = file _ ".pl" -%]
+[%- out = file _ "-out.txt" -%]
+[% INCLUDE $pl | xtidy %]
+
+produces output
+
+[% INCLUDE $out | xtidy %]
+[% END %]
 [% MACRO since(version) BLOCK -%]
 This was added to the module in version [% version %].
 [%- END %]
@@ -98,11 +107,7 @@ and it's included only for completeness.
 
 The following example demonstrates using C<inflate> with a PNG image.
 
-[% INCLUDE "inflate.pl" | xtidy %]
-
-The output looks like this:
-
-[% INCLUDE "inflate-out.txt" | indent(4) %]
+[% example('inflate') %]
 
 [% since('0.16') %]
 
@@ -126,9 +131,23 @@ output of L</gzip> and L</deflate>.
 
 =head2 new
 
+    my $gf = Gzip::Faster->new ();
+
+Defaults to gzip compression.
+
+[% since('0.16') %]
+
 =head2 zip
 
+    my $zipped = $gf->zip ($plain);
+
+[% since('0.16') %]
+
 =head2 unzip
+
+    my $plain = $gf->unzip ($zipped);
+
+[% since('0.16') %]
 
 =head2 copy_perl_flags
 
@@ -136,6 +155,54 @@ output of L</gzip> and L</deflate>.
 
 Copy the Perl flags like the utf8 flag into the header of the gzipped
 data.
+
+This feature of the module was restored in version 0.16.
+
+=head2 file_name
+
+    my $filename = $gf->file_name ();
+    $gf->file_name ('this.gz');
+
+Get or set the file name. This only applies to the gzip format, since
+the deflate format has no header to store a name into. When you set a
+file name, then use L</zip>, the file name is subsequently deleted
+from the object, so it needs to be set each time L</zip> is called.
+
+The following example demonstrates storing and then retrieving the
+name:
+
+[% example('file-name') %]
+
+The module currently has a hard-coded limit of 1024 bytes as the
+maximum length of file name it can read back.
+
+[% since('0.16') %]
+
+=head2 gzip_format
+
+    $gf->gzip_format (1);
+
+Switch between gzip and deflate formats. The default is gzip format.
+
+[% since('0.16') %]
+
+=head2 raw
+
+    $gf->raw (1);
+
+Switch between raw inflate and inflate formats. Switching this on
+automatically switches off L</gzip_format>, since these are not
+compatible.
+
+The sequence
+
+    $gf->gzip_format (1);
+    $gf->raw (1);
+    $gf->raw (0);
+
+ends up with C<$gf> in the non-raw inflate format.
+
+[% since('0.16') %]
 
 =head1 PERFORMANCE
 
@@ -230,18 +297,20 @@ compression offered by this module is the zlib default one, which is
 what you get if you run the command-line program gzip on a file
 without the options like C<--best> or C<--fast>.
 
-The module source code includes disabled functionality to round-trip
-Perl flags. I applied this to preserving Perl's "utf8" flag. However,
-the mechanism I used trips a browser bug in the Firefox web browser
-where it produces a content encoding error message. Thus this
-functionality is disabled. Please refer to the file
-F<gzip-faster-perl.c> in the distribution, the relevant parts are
-commented out with a macro C<COPY_PERL>.
-
 The module doesn't check whether the input of L</gzip> is already
 gzipped, and it doesn't check whether the compression was
 effective. That is, it doesn't check whether the output of L</gzip> is
 actually smaller than the input.
+
+=head2 Browser bugs and Gzip::Faster
+
+Using L</copy_perl_flags> with utf8-encoded text trips a browser bug
+in the Firefox web browser where it produces a content encoding error
+message.
+
+Using deflate on world-wide web pages on the internet, rather than
+gzip compression, trips browser bugs in some versions of Internet
+Explorer.
 
 =head1 EXPORTS
 

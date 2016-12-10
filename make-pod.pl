@@ -5,6 +5,9 @@ use Template;
 use FindBin '$Bin';
 use Path::Tiny;
 use Perl::Build qw/get_info get_commit/;
+use Perl::Build::Pod ':all';
+
+make_examples ("$Bin/examples", undef, undef);
 
 my $pod = "$Bin/lib/Gzip/Faster.pod";
 my $c = "$Bin/gzip-faster-perl.c";
@@ -56,33 +59,3 @@ $tt->process ("$pod.tmpl", \%vars, $pod) or die '' . $tt->error ();
 chmod 0444, $pod;
 exit;
 
-sub xtidy
-{
-    my ($text) = @_;
-
-    # Remove shebang.
-
-    $text =~ s/^#!.*$//m;
-
-    # Remove comments
-
-    $text =~ s/^#.*$//m;
-
-    # Remove random generator
-
-    $text =~ s/^my \$input.*$//m;
-
-    # Remove sobvious.
-
-    $text =~ s/use\s+(strict|warnings);\s+//g;
-
-    # Replace tabs with spaces.
-
-    $text =~ s/ {0,7}\t/        /g;
-
-    # Add indentation.
-
-    $text =~ s/^(.*)/    $1/gm;
-
-    return $text;
-}
