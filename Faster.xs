@@ -113,7 +113,7 @@ CODE:
 	Safefree (gf);
 
 void
-set_level (gf, level = Z_DEFAULT_COMPRESSION)
+level (gf, level = Z_DEFAULT_COMPRESSION)
 	Gzip::Faster gf;
 	int level;
 CODE:

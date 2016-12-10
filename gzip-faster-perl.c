@@ -355,11 +355,14 @@ set_compression_level (gzip_faster_t * gf, int level)
     if (level < Z_NO_COMPRESSION) {
 	warn ("Cannot set compression level to less than %d",
 	      Z_NO_COMPRESSION);
-	level = Z_NO_COMPRESSION;
+	gf->level = Z_NO_COMPRESSION;
     }
     else if (level > Z_BEST_COMPRESSION) {
 	warn ("Cannot set compression level to more than %d",
 	      Z_BEST_COMPRESSION);
-	level = Z_BEST_COMPRESSION;
+	gf->level = Z_BEST_COMPRESSION;
+    }
+    else {
+	gf->level = level;
     }
 }

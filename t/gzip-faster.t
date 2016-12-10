@@ -37,7 +37,11 @@ if (! utf8::is_utf8 ($kujira)) {
 my $gf1 = Gzip::Faster->new ();
 # round trips involving object and non-object
 my $rt;
-my $input = 'monkey shines';
+my $input = '';
+for (0..10000) {
+    $input .= (0..9)[int (rand () * 10)];
+}
+#print "$input\n";
 eval {
     $rt = gunzip ($gf1->zip ($input));
 };
@@ -132,5 +136,27 @@ my $outwithname = $gfnameout->unzip ($zippedwithname);
 is ($outwithname, $text, "Output text with name is OK");
 my $name_out = $gfnameout->file_name ();
 is ($name_out, $fname, "Got file name back");
+
+my $warning;
+$SIG{__WARN__} = sub {
+    $warning = $_[0];
+};
+$warning = undef;
+my $gflevel = Gzip::Faster->new ();
+$gflevel->level (-1);
+my $out0 = $gflevel->zip ($input);
+ok ($warning, "got warning");
+like ($warning, qr/level/, "warning looks OK");
+$warning = undef;
+$gflevel->level (100);
+ok ($warning, "got warning");
+like ($warning, qr/level/, "warning looks OK");
+my $out9 = $gflevel->zip ($input);
+cmp_ok (length ($out0) , ">", length ($out9),
+	"level 9 compression works better"); 
+$warning = undef;
+$gflevel->level ('monkey business');
+ok ($warning, "got warning");
+like ($warning, qr/numeric/, "warning looks OK");
 done_testing ();
 exit;
