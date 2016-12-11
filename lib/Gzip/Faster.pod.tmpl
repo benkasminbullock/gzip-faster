@@ -7,6 +7,8 @@
 produces output
 
 [% INCLUDE $out | xtidy %]
+
+(This example is included as L<F<[% pl %]>|https://api.metacpan.org/source/BKB/zip-Faster-[% info.version %]/examples/[% pl %]> in the distribution.)
 [% END %]
 [% MACRO since(version) BLOCK -%]
 This was added to the module in version [% version %].
@@ -29,7 +31,9 @@ corresponding to git commit L<[% commit.commit %]|[% info.repo
 
 =head1 DESCRIPTION
 
-This module compresses to and decompresses from the gzip format.
+This module compresses to and decompresses from the gzip and related
+formats. See L</About gzip> if you aren't familiar with the gzip
+format.
 
 The basic functions of the module are L</gzip> and L</gunzip>, which
 convert scalars to and from gzip format. There are also three
@@ -327,6 +331,8 @@ gzipped, and it doesn't check whether the compression was
 effective. That is, it doesn't check whether the output of L</gzip> is
 actually smaller than the input.
 
+In L</copy_perl_flags>, only the utf8 flag is implemented.
+
 =head2 Browser bugs and Gzip::Faster
 
 Some web browsers have bugs which may affect users of this module.
@@ -336,8 +342,7 @@ in the Firefox web browser where it produces a content encoding error
 message.
 
 Using deflate rather than gzip compression on world-wide web pages on
-the internet, trips browser bugs in some versions of Internet
-Explorer.
+the internet trips browser bugs in some versions of Internet Explorer.
 
 =head1 EXPORTS
 
@@ -360,22 +365,44 @@ functions from the module using
 
 =head1 DIAGNOSTICS
 
-All errors are fatal.
+
 
 =over
 
 =item Data input to inflate is not in libz format
 
-The data given to L</gunzip>, L</inflate>, or L</inflate_raw> was not
-in the expected format.
+(Fatal) The data given to L</gunzip>, L</inflate>, or L</inflate_raw>
+was not in the expected format.
 
 =item Error opening '$file': $!
 
-This may be produced by L</gunzip_file>, L</gzip_file>, or L</gzip_to_file>.
+(Fatal) This may be produced by L</gunzip_file>, L</gzip_file>, or
+L</gzip_to_file>.
 
 =item Error closing '$file': $!
 
-This may be produced by L</gunzip_file>, L</gzip_file>, or L</gzip_to_file>.
+(Fatal) This may be produced by L</gunzip_file>, L</gzip_file>, or
+L</gzip_to_file>.
+
+=item wrong format: perl flags not copied: use gzip_format(1)
+
+(Warning) The user used L</copy_perl_flags> together with the inflate
+compression, which isn't possible. Use L</gzip_format> with a true
+argument to allow L</copy_perl_flags> to work.
+
+=item wrong format: file name ignored: use gzip_format(1)
+
+(Warning) The user used L</file_name> together with the inflate
+compression, which isn't possible. Use L</gzip_format> with a true
+argument to allow L</file_name> to work.
+
+=item Cannot set compression level to less than %d
+
+(Warning) The user used L</level> with a negative value.
+
+=item Cannot set compression level to more than %d
+
+(Warning) The user used L</level> with a value greater than nine.
 
 =back
 
@@ -431,14 +458,29 @@ zgrim reported an important bug related to zlib.
 Aristotle Pagaltzis contributed the benchmarking code for
 L<Compress::Raw::Zlib>.
 
-The tests in F<t/png.t> use material taken from
-L<Image::PNG::Write::BW> by Andrea Nall (<ANALL>).
+The tests in F<t/png.t> and the example under L</inflate> use material
+taken from L<Image::PNG::Write::BW> by Andrea Nall (<ANALL>).
 
 =head1 SEE ALSO
 
+=head2 About gzip
+
+[% MACRO rfc(x) BLOCK -%]
+L<RFC [% x %]|https://tools.ietf.org/rfc/rfc[% x %].txt>
+[%- END %]
+
+The gzip and deflate formats are formats for compressing
+information. The formats are formally described by [% rfc(1950) %], [%
+rfc(1951) %], and [% rfc(1952) %]. The library zlib implements the
+formats. It is described at L<http://zlib.net>.
+
+=head2 Alternatives
+
+The following alternatives to this module may also be useful.
+
 =over
 
-=item gzip
+=item Command-line gzip
 
 Even within Perl, sometimes it's a lot easier to use the command line
 utility C<gzip> as in
@@ -450,8 +492,8 @@ module or another.
 
 =item mod_deflate and mod_gzip
 
-These are Apache web server modules which compress web outputs on the
-fly.
+These are Apache web server modules which compress web outputs
+immediately after you produce them, and before sending to the user.
 
 =item L<PerlIO::gzip>
 

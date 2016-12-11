@@ -47,22 +47,27 @@ WriteMakefile (
 
 exit;
 
+# Test for zlib. If zlib doesn't seem to be present, die.
+
 sub test_for_zlib
 {
-    # Test for zlib. If zlib doesn't seem to be present, die.
-
     my $c = <<'EOF';
 #include <zlib.h>
 #include <stdio.h>
-int main (void) { printf ("%s\n", zlibVersion ()); return 0; }
+int main (void) {
+    printf ("%s\n", zlibVersion ());
+    return 0;
+}
 EOF
     my ($fh, $filename) = tempfile ("tempXXXXXX");
     print $fh $c;
     close $fh or die "Can't close $filename: $!";
     my $cfilename = "$filename.c";
-    rename $filename, $cfilename or die "Can't rename $filename to $cfilename: $!";
+    rename $filename, $cfilename
+        or die "Can't rename $filename to $cfilename: $!";
     my $status = system ("$Config{cc} -o $filename $cfilename -lz");
     if ($status != 0) {
+	unlink $cfilename, $filename;
 	die "You don't seem to have zlib available on your system.";
     }
     unlink $cfilename or warn "Could not delete temp file $cfilename";

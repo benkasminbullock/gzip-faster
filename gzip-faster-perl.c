@@ -228,7 +228,7 @@ gzip_faster (gzip_faster_t * gf)
     return zipped;
 }
 
-#define FILE_NAME_MAX 0x400
+#define GF_FILE_NAME_MAX 0x400
 
 static SV *
 gunzip_faster (gzip_faster_t * gf)
@@ -239,7 +239,7 @@ gunzip_faster (gzip_faster_t * gf)
     int zlib_status;
 
     gz_header header;
-    unsigned char name[FILE_NAME_MAX];
+    unsigned char name[GF_FILE_NAME_MAX];
     unsigned char extra[EXTRA_LENGTH];
 
     gf_set_up (gf);
@@ -266,7 +266,7 @@ gunzip_faster (gzip_faster_t * gf)
 		gf_delete_file_name (gf);
 	    }
 	    header.name = name;
-	    header.name_max = NAME_MAX;
+	    header.name_max = GF_FILE_NAME_MAX;
 	    inflateGetHeader (& gf->strm, & header);
 	}
     }
