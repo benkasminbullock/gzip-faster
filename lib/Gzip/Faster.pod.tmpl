@@ -146,11 +146,21 @@ output of L</gzip> and L</deflate>.
 
 =head1 METHODS
 
+If you need to control the compression beyond what is offered by
+L</gzip> and L</gunzip>, create a Gzip::Faster object using L</new>
+and compress and uncompress using the L</zip> and L</unzip> methods
+described below. It is possible to set a file name in the gzip header
+with L</file_name>, change the level of compression from the default
+with L</level>, preserve some Perl flags with L</copy_perl_flags>, and
+to switch between gzip and deflate using the L</gzip_format> and
+L</raw> methods.
+
 =head2 new
 
     my $gf = Gzip::Faster->new ();
 
-Defaults to gzip compression.
+Create a Gzip::Faster object. The return value defaults to gzip
+compression. This can be altered with L</gzip_format> and L</raw>.
 
 [% since('0.16') %]
 
@@ -176,20 +186,32 @@ L</gzip> and L</raw>.
 
     $gf->copy_perl_flags (1);
 
-Copy the Perl flags like the utf8 flag into the header of the gzipped
-data.
+Copy some of the Perl flags (currently the utf8 flag) into the header
+of the gzipped data.
 
-This feature of the module was restored in version 0.16.
+Please see L</Browser bugs and Gzip::Faster> for reasons why you might
+not want to use this feature.
+
+This feature of the module was restored in version 0.16. 
 
 =head2 file_name
 
     my $filename = $gf->file_name ();
     $gf->file_name ('this.gz');
+    my $zipped = $gf->zip ($something);
 
-Get or set the file name. This only applies to the gzip format, since
-the deflate format has no header to store a name into. When you set a
-file name, then use L</zip>, the file name is subsequently deleted
-from the object, so it needs to be set each time L</zip> is called.
+Get or set the file name in the compressed output. The file name is a
+feature of the gzip format which is used, for example, when you use
+the command C<gzip -d file.gz>. It tells C<gzip> what to call the file
+after it's uncompressed. 
+
+The file_name method is only useful for the gzip format, since the
+deflate format does not have a header to store a name into. To prevent
+accidental re-use of a file name, when you set a file name with
+L</file_name>, then use L</zip>, the file name is deleted from the
+object, so it needs to be set each time L</zip> is called. If you set
+a file name with L</file_name> then call L</unzip>, that file name may
+be deleted.
 
 The following example demonstrates storing and then retrieving the
 name:
@@ -205,7 +227,9 @@ maximum length of file name it can read back.
 
     $gf->gzip_format (1);
 
-Switch between gzip and deflate formats. The default is gzip format.
+Switch between gzip and deflate formats. The default is gzip
+format. Switching on gzip format automatically switches off L</raw>
+format.
 
 [% since('0.16') %]
 
@@ -223,7 +247,7 @@ The sequence
     $gf->raw (1);
     $gf->raw (0);
 
-ends up with C<$gf> in the non-raw inflate format.
+puts C<$gf> in the non-raw deflate format.
 
 [% since('0.16') %]
 
@@ -341,8 +365,9 @@ Using L</copy_perl_flags> with utf8-encoded text trips a browser bug
 in the Firefox web browser where it produces a content encoding error
 message.
 
-Using deflate rather than gzip compression on world-wide web pages on
-the internet trips browser bugs in some versions of Internet Explorer.
+Using deflate rather than gzip compression trips browser bugs in older
+versions of Internet Explorer, which mistakenly say they can handle
+the deflate format, but in fact can only handle gzip format.
 
 =head1 EXPORTS
 
@@ -365,14 +390,12 @@ functions from the module using
 
 =head1 DIAGNOSTICS
 
-
-
 =over
 
 =item Data input to inflate is not in libz format
 
-(Fatal) The data given to L</gunzip>, L</inflate>, or L</inflate_raw>
-was not in the expected format.
+(Fatal) The data given to L</gunzip>, L</inflate>, L</inflate_raw>, or
+L</unzip> was not in the compressed format.
 
 =item Error opening '$file': $!
 
@@ -386,13 +409,13 @@ L</gzip_to_file>.
 
 =item wrong format: perl flags not copied: use gzip_format(1)
 
-(Warning) The user used L</copy_perl_flags> together with the inflate
-compression, which isn't possible. Use L</gzip_format> with a true
-argument to allow L</copy_perl_flags> to work.
+(Warning) The user tried to use L</copy_perl_flags> together with
+deflate compression, which isn't possible. Use L</gzip_format> with a
+true argument to allow L</copy_perl_flags> to work.
 
 =item wrong format: file name ignored: use gzip_format(1)
 
-(Warning) The user used L</file_name> together with the inflate
+(Warning) The user tried to use L</file_name> together with deflate
 compression, which isn't possible. Use L</gzip_format> with a true
 argument to allow L</file_name> to work.
 
@@ -406,19 +429,16 @@ argument to allow L</file_name> to work.
 
 =back
 
-There are a number of other diagnostics but these are meant to detect
-bugs. A complete list of the other can be obtained by running the
-C<parse-diagnostics> script which comes with L<Parse::Diagnostics> on
-the files F<gzip-faster-perl.c> and F<lib/Gzip/Faster.pm> in the
-distribution.
+There are other diagnostic messages in the module to detect bugs. A
+list can be obtained by running the C<parse-diagnostics> script which
+comes with L<Parse::Diagnostics> on the files F<gzip-faster-perl.c>
+and F<lib/Gzip/Faster.pm> in the distribution.
 
 =head1 INSTALLATION
 
-Installation follows the standard Perl methods. If you do not know
-what the standard Perl module install methods are, detailed
-instructions can be found in the file F<README> in the
-distribution. The following are some extra notes for people who get
-stuck.
+Installation follows standard Perl methods. Detailed instructions can
+be found in the file F<README> in the distribution. The following are
+some extra notes for people who get stuck.
 
 Gzip::Faster requires the compression library C<zlib> (also called
 C<libz>) to be installed. The following message printed during C<perl
@@ -519,22 +539,34 @@ and you never have to deal with the gzip format.
 
 =back
 
+=head2 Extended examples
+
+=over
+
+=item CGI output
+
+L<Compressing CGI output with Perl and
+Gzip::Faster|https://www.lemoda.net/cgi/perl-gzip-faster-cgi/index.html>
+demonstrates how to use Gzip::Faster to compress the output of a web
+program.
+
+=back
+
 =head1 HISTORY
 
 This module started as an experimental benchmark against
-L<IO::Compress::Gzip> when profiling revealed that some web programs
-were spending the majority of their time in
-L<IO::Compress::Gzip>. Because I also had some web programs in C,
-which use the raw zlib itself, I was aware that zlib itself was very
-fast, and I was surprised by the amount of time the Perl code was
-taking. I wrote this module to test IO::Compress::Gzip against a
-simplistic C wrapper. I released the module to CPAN because the
-results were very striking. 
+L<IO::Compress::Gzip> when profiling revealed that some programs were
+spending the majority of their time in L<IO::Compress::Gzip>. Since I
+knew that zlib was fast, I was surprised by the time the Perl code was
+taking. I wrote Gzip::Faster to test IO::Compress::Gzip against a
+simplistic gzip wrapper. I released the module to CPAN because the
+results were very striking. See L</PERFORMANCE> above for details.
 
-The code's ancestor is the example program C<zpipe> supplied with
-zlib. See L<http://zlib.net/zpipe.c>. Gzip::Faster is little more than
-C<zpipe> reading to and and writing from Perl scalars. 
+Gzip::Faster's ancestor is the example program C<zpipe> supplied with
+zlib. See L<http://zlib.net/zpipe.c>. Gzip::Faster is C<zpipe> reading
+to and and writing from Perl scalars.
 
-Version 0.16 added L</deflate> and related functions.
+Version 0.16 added L</deflate> and related functions and the
+object-oriented functions.
 
 [% INCLUDE "author" %]
