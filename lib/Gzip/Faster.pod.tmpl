@@ -580,6 +580,11 @@ Gzip::Faster|https://www.lemoda.net/cgi/perl-gzip-faster-cgi/index.html>
 demonstrates how to use Gzip::Faster to compress the output of a web
 program.
 
+L<Requesting compressed content from a web server with
+LWP::UserAgent|https://www.lemoda.net/compression/lwp-use-gzip/index.html>
+demonstrates how to use Gzip::Faster with L<LWP::UserAgent> when
+requesting compressed content.
+
 =back
 
 =head1 HISTORY
@@ -598,5 +603,8 @@ to and and writing from Perl scalars.
 
 Version 0.16 added L</deflate> and related functions and the
 object-oriented functions.
+
+Version 0.18 added the ability to set and get file names to the
+g*zip*file functions.
 
 [% INCLUDE "author" %]
