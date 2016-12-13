@@ -122,6 +122,10 @@ gzip_faster (gzip_faster_t * gf)
     /* The message from zlib. */
     int zlib_status;
 
+    if (! SvOK (gf->in)) {
+	warn ("Empty input");
+	return & PL_sv_undef;
+    }
     gf_set_up (gf);
     if (gf->in_length == 0) {
 	return & PL_sv_undef;
@@ -242,6 +246,10 @@ gunzip_faster (gzip_faster_t * gf)
     unsigned char name[GF_FILE_NAME_MAX];
     unsigned char extra[EXTRA_LENGTH];
 
+    if (! SvOK (gf->in)) {
+	warn ("Empty input");
+	return & PL_sv_undef;
+    }
     gf_set_up (gf);
 
     if (gf->is_gzip) {

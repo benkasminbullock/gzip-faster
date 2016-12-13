@@ -34,7 +34,7 @@ CODE:
 	gz.is_raw = 0;
 	gz.in = zipped;
 	gz.user_object = 0;
-	RETVAL = gunzip_faster (&gz);
+	RETVAL = gunzip_faster (& gz);
 OUTPUT:
 	RETVAL
 

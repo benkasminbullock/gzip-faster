@@ -79,7 +79,12 @@ if C<$zipped> is not in the gzip format.
 This reads the contents of F<file> into memory and then runs L</gzip>
 on the file's contents. The return value and the possible errors are
 the same as L</gzip>, plus this may also throw an error if C<open>
-fails.
+fails.  To write a file name, use 
+
+    my $zipped = gzip_file ('file', file_name => 'file');
+
+[% since('0.04') %]
+File name writing was added in version 0.18.
 
 =head2 gunzip_file
 
@@ -88,7 +93,18 @@ fails.
 This reads the contents of F<file.gz> into memory and then runs
 L</gunzip> on the file's contents. The return value and the possible
 errors are the same as L</gunzip>, plus this may also throw an error
-if C<open> fails.
+if C<open> fails. To retrieve a file name, use
+
+    my $plain = gunzip_file ('file.gz', file_name => \my $file_name);
+
+Note that you must provide a scalar reference to the C<file_name>
+argument. This reference is filled in with the file name information
+from the header of F<file.gz>. If F<file.gz> does not contain any file
+name information, C<$file_name> will contain the undefined value.
+
+[% since('0.04') %]
+
+File name reading was added in version 0.18.
 
 =head2 gzip_to_file
 
@@ -97,20 +113,24 @@ if C<open> fails.
 This compresses C<$plain> in memory using L</gzip> and writes the
 compressed content to 'file.gz'. There is no return value. The errors
 are the same as L</gzip>, plus this may also throw an error if C<open>
-fails. As of this version, it does not write any gzip header
-information to F<file.gz>.
+fails. To write a file name, use 
+
+    gzip_to_file ($plain, 'file.gz', file_name => 'file');
+
+[% since('0.08') %]
+
+File name writing was added in version 0.18.
 
 =head2 deflate
 
     my $deflated = deflate ($plain);
 
-This is similar to L</gzip> except that it doesn't write the gzip
-header information. The output can be inflated either with L</inflate>
-or with L</gunzip>.
+Compress C<$plain> into the deflate format. This format is similar to
+L</gzip> except that it doesn't contain a gzip header. The output can
+be inflated either with L</inflate> or with L</gunzip>.
 
-There is 
-an example of using L</deflate> to write a PNG in the module
-in F<t/png.t>.
+There is an example of using L</deflate> to write a PNG in the
+module's tests in F<t/png.t>.
 
 [% since('0.16') %]
 
@@ -120,7 +140,8 @@ in F<t/png.t>.
 
 Inflate the output of L</deflate>. Although the code is slightly
 different, for all practical purposes this is identical to L</gunzip>,
-and it's included only for completeness.
+and it's included only for completeness. In other words, you can use
+inflate and gunzip interchangeably.
 
 The following example demonstrates using C<inflate> with a PNG image.
 
@@ -426,6 +447,15 @@ argument to allow L</file_name> to work.
 =item Cannot set compression level to more than %d
 
 (Warning) The user used L</level> with a value greater than nine.
+
+=item Cannot write file name to non-scalar reference
+
+(Warning) The user's value for C<file_name> in the optional argument
+to L</gunzip_file> was not a scalar reference.
+
+=item Empty input
+
+(Warning) The user tried to compress or decompress the undefined value.
 
 =back
 

@@ -124,7 +124,13 @@ for my $test (0, 10101) {
 	    "Round trip with $test ungzipped and unpacked");
 }
 
-# Test adding names.
+#  ____       _      __ _ _                                        
+# / ___|  ___| |_   / _(_) | ___   _ __   __ _ _ __ ___   ___  ___ 
+# \___ \ / _ \ __| | |_| | |/ _ \ | '_ \ / _` | '_ ` _ \ / _ \/ __|
+#  ___) |  __/ |_  |  _| | |  __/ | | | | (_| | | | | | |  __/\__ \
+# |____/ \___|\__| |_| |_|_|\___| |_| |_|\__,_|_| |_| |_|\___||___/
+                                                                 
+# Test adding names with the object.
 
 my $fname = 'Philip Marlowe';
 my $text = 'Moose Malloy';
@@ -136,6 +142,32 @@ my $outwithname = $gfnameout->unzip ($zippedwithname);
 is ($outwithname, $text, "Output text with name is OK");
 my $name_out = $gfnameout->file_name ();
 is ($name_out, $fname, "Got file name back");
+
+# Test setting file names in gzip_to_file and gunzip_file and gzip_file.
+
+my $filewname = 'file-name-file';
+my $filename = "has-name.gz";
+gzip_to_file ($input, $filename, file_name => $filewname);
+my $outname;
+gunzip_file ($filename, file_name => \$outname);
+is ($outname, $filewname, "Retrieved file name from file");
+
+# $filename is unlinked below, underneath the check for warnings on
+# not using a scalar reference.
+
+my $named = gzip_file ($0, file_name => $filewname);
+my $gfnametest = Gzip::Faster->new ();
+$gfnametest->unzip ($named);
+is ($gfnametest->file_name (), $filewname,
+    "Retrieved file name with gzip_file");
+
+# __        __               _                 
+# \ \      / /_ _ _ __ _ __ (_)_ __   __ _ ___ 
+#  \ \ /\ / / _` | '__| '_ \| | '_ \ / _` / __|
+#   \ V  V / (_| | |  | | | | | | | | (_| \__ \
+#    \_/\_/ \__,_|_|  |_| |_|_|_| |_|\__, |___/
+#                                    |___/     
+
 
 my $warning;
 $SIG{__WARN__} = sub {
@@ -158,5 +190,21 @@ $warning = undef;
 $gflevel->level ('monkey business');
 ok ($warning, "got warning");
 like ($warning, qr/numeric/, "warning looks OK");
+
+$warning = undef;
+my $undefout = gunzip (undef);
+ok ($warning, "got warning");
+like ($warning, qr/empty input/i, "Warning on empty input");
+
+$warning = undef;
+gunzip_file ($filename, file_name => my $not_a_scalar);
+ok ($warning, "got warning");
+like ($warning, qr/scalar reference/, "Warning on non-reference");
+
+# Delete  the file now we have used it.
+
+unlink ($filename);
+
+
 done_testing ();
 exit;
