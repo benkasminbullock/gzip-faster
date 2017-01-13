@@ -15,3 +15,7 @@ MYMETA..*
 file\.gz$
 ^bench/chinese\.txt$
 ^timesheet\.txt$
+# Output of running examples used for POD
+^examples/.*-out\.txt$
+# Output of running benchmarks used for POD
+^bench/(short|long)\.output$
