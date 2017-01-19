@@ -83,8 +83,12 @@ fails.  To write a file name, use
 
     my $zipped = gzip_file ('file', file_name => 'file');
 
-[% since('0.04') %]
-File name writing was added in version 0.18.
+The modification time can also be written:
+
+    my $zipped = gzip_file ('file', file_name => 'file', mod_time => time ());
+
+[% since('0.04') %] File name writing was added in version
+0.18. Modification time writing was added in version 0.19.
 
 =head2 gunzip_file
 
@@ -102,9 +106,13 @@ argument. This reference is filled in with the file name information
 from the header of F<file.gz>. If F<file.gz> does not contain any file
 name information, C<$file_name> will contain the undefined value.
 
-[% since('0.04') %]
+The modification time can also be read from the header:
 
-File name reading was added in version 0.18.
+    my $plain = gunzip_file ('file.gz', file_name => \my $file_name,
+	                     mod_time => \my $mod_time);
+
+[% since('0.04') %] File name reading was added in version
+0.18. Modification time reading was added in version 0.19.
 
 =head2 gzip_to_file
 
@@ -119,7 +127,8 @@ fails. To write a file name, use
 
 [% since('0.08') %]
 
-File name writing was added in version 0.18.
+File name writing was added in version 0.18. Modification time writing
+was added in version 0.19.
 
 =head2 deflate
 
@@ -282,6 +291,18 @@ to be set to the nearest valid value, for example a value of 100
 causes the level to be set to 9.
 
 [% since('0.16') %]
+
+=head2 mod_time
+
+    $gf->mod_time (time ());
+    my $mod_time = $gf->mod_time ();
+
+Set or get the file modification time in the gzip header. The
+modification time is an unsigned integer which represents the number
+of seconds since the Unix epoch. This only applies to L</gzip_format>
+compression.
+
+[% since('0.19') %]
 
 =head1 PERFORMANCE
 
@@ -635,6 +656,6 @@ Version 0.16 added L</deflate> and related functions and the
 object-oriented functions.
 
 Version 0.18 added the ability to set and get file names to the
-g*zip*file functions.
+g*zip*file functions, and version 0.19 added modification times.
 
 [% INCLUDE "author" %]

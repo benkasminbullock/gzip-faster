@@ -58,7 +58,7 @@ sub gunzip_file
 	my $gf = __PACKAGE__->new ();
 	$plain = $gf->unzip ($zipped);
 	my $file_name_ref = $options{file_name};
-	if (ref $file_name_ref ne 'SCALAR') {
+	if (defined ($file_name_ref) && ref $file_name_ref ne 'SCALAR') {
 	    warn "Cannot write file name to non-scalar reference";
 	}
 	else {

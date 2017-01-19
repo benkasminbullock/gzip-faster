@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use FindBin;
+use FindBin '$Bin';
 use Test::More;
 use Gzip::Faster ':all';
 
@@ -161,6 +161,17 @@ $gfnametest->unzip ($named);
 is ($gfnametest->file_name (), $filewname,
     "Retrieved file name with gzip_file");
 
+#  __  __           _   _   _                
+# |  \/  | ___   __| | | |_(_)_ __ ___   ___ 
+# | |\/| |/ _ \ / _` | | __| | '_ ` _ \ / _ \
+# | |  | | (_) | (_| | | |_| | | | | | |  __/
+# |_|  |_|\___/ \__,_|  \__|_|_| |_| |_|\___|
+#                                           
+
+gunzip_file ("$Bin/index.html.gz", mod_time => \my $mod_time);
+ok ($mod_time != 0, "Got modification time");
+ok ($mod_time == 1396598505, "Got correct modification time");
+
 # __        __               _                 
 # \ \      / /_ _ _ __ _ __ (_)_ __   __ _ ___ 
 #  \ \ /\ / / _` | '__| '_ \| | '_ \ / _` / __|
@@ -197,7 +208,12 @@ ok ($warning, "got warning");
 like ($warning, qr/empty input/i, "Warning on empty input");
 
 $warning = undef;
-gunzip_file ($filename, file_name => my $not_a_scalar);
+gunzip_file ($filename, file_name => 'monkeyshines');
+ok ($warning, "got warning");
+like ($warning, qr/scalar reference/, "Warning on non-reference");
+
+$warning = undef;
+gunzip_file ($filename, mod_time => 'monkeyshines');
 ok ($warning, "got warning");
 like ($warning, qr/scalar reference/, "Warning on non-reference");
 
