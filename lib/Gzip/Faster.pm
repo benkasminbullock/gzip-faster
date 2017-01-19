@@ -7,7 +7,7 @@ our @EXPORT = qw/gzip gunzip gzip_file gunzip_file gzip_to_file/;
 our @EXPORT_OK = qw/deflate inflate deflate_raw inflate_raw/;
 our %EXPORT_TAGS = ('all' => [@EXPORT, @EXPORT_OK]);
 use Carp;
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 require XSLoader;
 XSLoader::load ('Gzip::Faster', $VERSION);
 
@@ -26,8 +26,12 @@ sub gzip_options
     my ($plain, %options) = @_;
     my $gf = __PACKAGE__->new ();
     my $file_name = $options{file_name};
+    my $mod_time = $options{mod_time};
     if ($file_name) {
 	$gf->file_name ($file_name);
+    }
+    if ($mod_time) {
+	$gf->mod_time ($mod_time);
     }
     return $gf->zip ($plain);
 }
@@ -40,7 +44,8 @@ sub gzip_file
 	return gzip_options ($plain, %options);
     }
     else {
-	return gzip ($plain);
+	my $mod_time = (stat ($file))[9];
+	return gzip_options ($plain, file_name => $file, mod_time => $mod_time);
     }
 }
 
@@ -58,6 +63,13 @@ sub gunzip_file
 	}
 	else {
 	    $$file_name_ref = $gf->file_name ();
+	}
+	my $mod_time_ref = $options{mod_time};
+	if (defined ($mod_time_ref) && ref $mod_time_ref ne 'SCALAR') {
+	    warn "Cannot write modification time to non-scalar reference";
+	}
+	else {
+	    $$mod_time_ref = $gf->mod_time ();
 	}
     }
     else {

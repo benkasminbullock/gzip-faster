@@ -248,9 +248,10 @@ maximum length of file name it can read back.
 
     $gf->gzip_format (1);
 
-Switch between gzip and deflate formats. The default is gzip
-format. Switching on gzip format automatically switches off L</raw>
-format.
+Switch between gzip and deflate formats. A true value turns on the
+gzip format, and a false value turns on deflate format. The default is
+gzip format. Switching on gzip format on an object automatically
+switches off L</raw> format on the object.
 
 [% since('0.16') %]
 
@@ -258,11 +259,10 @@ format.
 
     $gf->raw (1);
 
-Switch between raw inflate and inflate formats. Switching this on
-automatically switches off L</gzip_format>, since these are not
-compatible.
-
-The sequence
+Switch between the raw deflate and deflate formats. A true value turns
+on the L</raw deflate format>, and a false value turns off the raw
+deflate format. Switching this on has the side effect of automatically
+switching off L</gzip_format>. Thus the sequence
 
     $gf->gzip_format (1);
     $gf->raw (1);
@@ -520,9 +520,11 @@ L<RFC [% x %]|https://tools.ietf.org/rfc/rfc[% x %].txt>
 [%- END %]
 
 The gzip and deflate formats are formats for compressing
-information. The formats are formally described by [% rfc(1950) %], [%
-rfc(1951) %], and [% rfc(1952) %]. The library zlib implements the
-formats. It is described at L<http://zlib.net>.
+information. The formats are formally described by [% rfc(1950) %]
+(ZLIB Compressed Data Format Specification), [% rfc(1951) %] (DEFLATE
+Compressed Data Format Specification), and [% rfc(1952) %] (GZIP file
+format specification). The library zlib implements the formats. It is
+described at L<http://zlib.net>.
 
 =head2 Alternatives
 
@@ -584,6 +586,34 @@ L<Requesting compressed content from a web server with
 LWP::UserAgent|https://www.lemoda.net/compression/lwp-use-gzip/index.html>
 demonstrates how to use Gzip::Faster with L<LWP::UserAgent> when
 requesting compressed content.
+
+=back
+
+=head1 GLOSSARY
+
+This section describes some of the terminology of the Gzip compression
+system.
+
+=over
+
+=item deflate format
+
+The deflate format is the same as the L</gzip format> except that it
+does not contain a header with additional information. The deflate
+format may or may not include a checksum. If it does not include the
+checksum, it is the L</raw deflate format>.
+
+=item gzip format
+
+The gzip format is the same as the L</deflate format> except that it
+includes a header which may contain such things as a file name.
+
+=item raw deflate format
+
+The raw deflate format is a form of the L</deflate format> without an
+Adler-32 checksum. (The terminology "raw deflate" for this format is
+from L<the zlib manual|http://zlib.net/manual.html> and does not
+appear in the RFCs.)
 
 =back
 

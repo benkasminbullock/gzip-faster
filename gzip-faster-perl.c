@@ -34,6 +34,8 @@ typedef struct
     /* Optional file name for gzip format.  This can only take values
        for user-visible objects. */
     SV * file_name;
+    /* User-defined modification time. */
+    SV * mod_time;
     /* Gzip, not deflate or inflate. */
     unsigned int is_gzip : 1;
     /* "Raw" inflate or deflate without adler32 check. */
@@ -77,24 +79,43 @@ gf_set_up (gzip_faster_t * gf)
     gf->wb = windowBits;
 }
 
+/* Check that we are always dealing with a user-defined object, not a
+   module-defined object, before altering the values. */
+
+#define UO					\
+    if (! gf->user_object) {			\
+	croak ("THIS IS NOT A USER OBJECT");	\
+    }
+
+
+/* Delete the file name in the object. */
+
 static void
 gf_delete_file_name (gzip_faster_t * gf)
 {
-    if (! gf->user_object) {
-	croak ("THIS IS NOT A USER OBJECT");
-    }
+    UO;
     if (gf->file_name) {
 	SvREFCNT_dec (gf->file_name);
 	gf->file_name = 0;
     }
 }
 
+/* Delete the file name in the object. */
+
+static void
+gf_delete_mod_time (gzip_faster_t * gf)
+{
+    UO;
+    if (gf->mod_time) {
+	SvREFCNT_dec (gf->mod_time);
+	gf->mod_time = 0;
+    }
+}
+
 static void
 gf_set_file_name (gzip_faster_t * gf, SV * file_name)
 {
-    if (! gf->user_object) {
-	croak ("THIS IS NOT A USER OBJECT");
-    }
+    UO;
     if (gf->file_name) {
 	gf_delete_file_name (gf);
     }
@@ -105,11 +126,30 @@ gf_set_file_name (gzip_faster_t * gf, SV * file_name)
 static SV *
 gf_get_file_name (gzip_faster_t * gf)
 {
-    if (! gf->user_object) {
-	croak ("THIS IS NOT A USER OBJECT");
-    }
+    UO;
     if (gf->file_name) {
 	return gf->file_name;
+    }
+    return & PL_sv_undef;
+}
+
+static void
+gf_set_mod_time (gzip_faster_t * gf, SV * mod_time)
+{
+    UO;
+    if (gf->mod_time) {
+	gf_delete_mod_time (gf);
+    }
+    SvREFCNT_inc (mod_time);
+    gf->mod_time = mod_time;
+}
+
+static SV *
+gf_get_mod_time (gzip_faster_t * gf)
+{
+    UO;
+    if (gf->mod_time) {
+	return gf->mod_time;
     }
     return & PL_sv_undef;
 }
@@ -169,6 +209,10 @@ gzip_faster (gzip_faster_t * gf)
 		header.name = (Bytef *) fn;
 		set_header++;
 	    }
+	    if (gf->mod_time) {
+		header.time = (uLong) SvUV (gf->mod_time);
+		set_header++;
+	    }
 	    if (set_header) {
 		CALL_ZLIB (deflateSetHeader (& gf->strm, & header));
 	    }
@@ -177,8 +221,8 @@ gzip_faster (gzip_faster_t * gf)
 	    if (gf->copy_perl_flags) {
 		warn ("wrong format: perl flags not copied: use gzip_format(1)");
 	    }
-	    if (gf->file_name) {
-		warn ("wrong format: file name ignored: use gzip_format(1)");
+	    if (gf->file_name || gf->mod_time) {
+		warn ("wrong format: file name/modification time ignored: use gzip_format(1)");
 	    }
 	}
     }
@@ -270,9 +314,16 @@ gunzip_faster (gzip_faster_t * gf)
 		header.extra = extra;
 		header.extra_max = EXTRA_LENGTH;
 	    }
+	    /* If there are stale file names or modification times in
+	       our object, delete them. */
 	    if (gf->file_name) {
 		gf_delete_file_name (gf);
 	    }
+	    if (gf->mod_time) {
+		gf_delete_mod_time (gf);
+	    }
+	    /* Point the header values to our buffer, "name", and give
+	       the length of the buffer. */
 	    header.name = name;
 	    header.name_max = GF_FILE_NAME_MAX;
 	    inflateGetHeader (& gf->strm, & header);
@@ -343,6 +394,20 @@ gunzip_faster (gzip_faster_t * gf)
 	else {
 	    gf_delete_file_name (gf);
 	}
+	/* If the header includes a modification time, copy it into
+	   $gf->mod_time. If the header doesn't include a modification
+	   time, make sure the modification time of $gf is completely
+	   clear, so the user doesn't get old junk data. */
+	if (header.time) {
+	    /* I'm not 100% sure of the type conversion
+	       here. header.time is uLong in the zlib documentation,
+	       and UV is unsigned int, or something? */
+	    gf->mod_time = newSVuv (header.time);
+	    SvREFCNT_inc (gf->mod_time);
+	}
+	else {
+	    gf_delete_mod_time (gf);
+	}
     }
     return plain;
 }
@@ -351,6 +416,7 @@ static void
 new_user_object (gzip_faster_t * gf)
 {
     gf->file_name = 0;
+    gf->mod_time = 0;
     gf->is_gzip = 1;
     gf->is_raw = 0;
     gf->user_object = 1;

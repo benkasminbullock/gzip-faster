@@ -110,6 +110,7 @@ CODE:
 		croak ("THIS IS NOT A USER-VISIBLE OBJECT");
 	}
 	gf_delete_file_name (gf);
+        gf_delete_mod_time (gf);
 	Safefree (gf);
 
 void
@@ -181,6 +182,29 @@ CODE:
 	else {
 		SvREFCNT_inc (gf->file_name);
 		RETVAL = gf_get_file_name (gf);
+	}
+OUTPUT:
+	RETVAL
+
+SV *
+mod_time (gf, modtime = 0)
+	Gzip::Faster gf;
+	SV * modtime;
+CODE:
+	if (modtime) {
+		gf_set_mod_time (gf, modtime);
+		/* We increment the reference count twice, once here
+		   because it returns its own value, and once in
+		   gf_set_mod_time. Unless the user captures the
+		   following return value, Perl then decrements it by
+		   one as the return value is discarded, so it has to
+		   be done twice. */
+		SvREFCNT_inc (modtime);
+		RETVAL = modtime;
+	}
+	else {
+		SvREFCNT_inc (gf->mod_time);
+		RETVAL = gf_get_mod_time (gf);
 	}
 OUTPUT:
 	RETVAL
