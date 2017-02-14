@@ -1,11 +1,11 @@
 use warnings;
 use strict;
 use Test::More;
-use FindBin;
+use FindBin '$Bin';
 
 # Check that OPTIMIZE is not defined in Makefile.PL.
 
-my $file = "$FindBin::Bin/../Makefile.PL";
+my $file = "$Bin/../Makefile.PL";
 open my $in, "<", $file or die $!;
 while (<$in>) {
     if (/-Wall/) {

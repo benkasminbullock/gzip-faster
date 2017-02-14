@@ -28,7 +28,7 @@ my $tt = Template->new (
     },
     INCLUDE_PATH => [
 	"$FindBin::Bin/examples",
-	"/home/ben/projects/Perl-Build/lib/Perl/Build/templates",
+	pbtmpl (),
     ],
     STRICT => 1,
 );

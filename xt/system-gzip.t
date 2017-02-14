@@ -1,7 +1,7 @@
 #!/home/ben/software/install/bin/perl
 use warnings;
 use strict;
-use FindBin;
+use FindBin '$Bin';
 use Test::More;
 use Gzip::Faster;
 
@@ -15,7 +15,7 @@ inflate() returns Z_OK if some progress has been made (more input processed
 EOF
 
 my $z = gzip $guff;
-my $f = "$FindBin::Bin/test";
+my $f = "$Bin/test";
 my $fgz = "$f.gz";
 open my $out, ">:raw", $fgz or die $!;
 print $out $z;
