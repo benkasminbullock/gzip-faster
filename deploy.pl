@@ -20,3 +20,4 @@ if (! -f $tf) { die; }
 do_system ("faq-module-build.pl $tf");
 do_system ("lemoda-module-build.pl $tf");
 do_system ("kanji-module-build.pl $tf");
+do_system ("nxmnpg-module-build.pl $tf");
