@@ -186,6 +186,7 @@ gzip_faster (gzip_faster_t * gf)
     }
     gf_set_up (gf);
     if (gf->in_length == 0) {
+	warn ("Attempt to compress empty string");
 	return & PL_sv_undef;
     }
 
@@ -311,6 +312,10 @@ gunzip_faster (gzip_faster_t * gf)
 	return & PL_sv_undef;
     }
     gf_set_up (gf);
+    if (gf->in_length == 0) {
+	warn ("Attempt to uncompress empty string");
+	return & PL_sv_undef;
+    }
 
     if (gf->is_gzip) {
 	if (gf->is_raw) {
