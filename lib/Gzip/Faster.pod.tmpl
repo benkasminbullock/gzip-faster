@@ -16,6 +16,11 @@ L<F<[% file %]>|https://fastapi.metacpan.org/source/BKB/Gzip-Faster-[% info.vers
 [% MACRO since(name,version) BLOCK -%]
 C<[% name %]> was added in version [% version %].
 [%- END %]
+[%- MACRO undefempty(var) BLOCK -%]
+If the input value C<[% var %]> is the undefined value or an empty
+string, it prints a warning (see L</DIAGNOSTICS>) and returns the
+undefined value.
+[%- END -%]
 =encoding UTF-8
 
 =head1 NAME
@@ -73,14 +78,17 @@ using L</copy_perl_flags>.
 This compresses C<$plain> into the gzip format. The return value is
 the compressed version of C<$plain>. 
 
+[% undefempty('$plain') %] 
+
 =head2 gunzip
 
     my $plain = gunzip ($zipped);
 
 This uncompresses C<$zipped> and returns the result of the
-uncompression. It prints a warning and returns the undefined value if
-C<$zipped> is the undefined value or an empty string. It throws a
-fatal error if C<$zipped> is not in the gzip format.
+uncompression. 
+
+[% undefempty('$zipped') %] 
+It throws a fatal error if C<$zipped> is not in the gzip format.
 
 =head2 gzip_file
 
@@ -111,12 +119,12 @@ if C<open> fails. To retrieve a file name, use
 
     my $plain = gunzip_file ('file.gz', file_name => \my $file_name);
 
-Note that you must provide a scalar reference to the C<file_name>
-argument. This reference is filled in with the file name information
-from the header of F<file.gz>. If F<file.gz> does not contain any file
-name information, C<$file_name> will contain the undefined value.
+Provide a scalar reference to the C<file_name> argument. Your
+reference is filled with the file name from the header of
+F<file.gz>. If F<file.gz> does not contain file name information, your
+reference will be given the undefined value.
 
-The modification time can also be read from the header:
+The modification time in the header can also be read into a reference:
 
     my $plain = gunzip_file ('file.gz', file_name => \my $file_name,
 	                     mod_time => \my $mod_time);
@@ -130,8 +138,9 @@ The modification time can also be read from the header:
 
 This compresses C<$plain> in memory using L</gzip> and writes the
 compressed content to 'file.gz'. There is no return value. The errors
-are the same as L</gzip>, plus this may also throw an error if C<open>
-fails. To write a file name, use 
+are the same as L</gzip>, and this may also throw an error if C<open>
+fails. To write a file name into the header information of your file,
+use
 
     gzip_to_file ($plain, 'file.gz', file_name => 'file');
 
@@ -147,8 +156,10 @@ is similar to the L</gzip> format, except that it doesn't contain a
 gzip header. The output of C<deflate> can be inflated either with
 L</inflate> or with L</gunzip>.
 
-To see an example of using L</deflate> to write a PNG image file, see
-[% file("t/png.t") %] in the module's tests.
+[% undefempty('$plain') %]
+
+For an example using L</deflate> to write a PNG image file, see [%
+file("t/png.t") %] in the module's tests.
 
 [% since('deflate','0.16') %]
 
@@ -161,29 +172,40 @@ this is identical to L</gunzip>, and it's included only for
 completeness. In other words, you can use inflate and gunzip
 interchangeably.
 
+[% undefempty('$deflated') %]
+
 [% since('inflate','0.16') %]
 
 =head2 deflate_raw
 
+    my $zipped = deflate_raw ($plain);
+
 This is similar to L</deflate>, except that it doesn't write check sum
-value in the data. The output is incompatible with L</inflate> and
-L</gunzip>, and must be inflated with L</inflate_raw>.
+values in the data. The output is incompatible with L</inflate> and
+L</gunzip>, and must be inflated with L</inflate_raw>. See L</raw
+deflate format> for details.
+
+[% undefempty('$plain') %]
 
 [% since('deflate_raw','0.16') %]
 
 =head2 inflate_raw
 
+    my $plain = inflate_raw ($zipped);
+
 This inflates data output by L</deflate_raw>. It won't work on the
-output of L</gzip> and L</deflate>. It prints a warning and returns
-the undefined value if its input is the undefined value or an empty
-string. It throws a fatal error if its input is not in the deflate
-format.
+output of L</gzip> and L</deflate>. See L</raw
+deflate format> for details.
+
+[% undefempty('$zipped') %] 
+It throws a fatal error if its input is not in the deflate format.
 
 [% since('inflate_raw','0.16') %]
 
 =head1 METHODS
 
-This section describes the object-oriented interface of Gzip::Faster.
+This section describes the object-oriented interface of Gzip::Faster,
+which offers closer control over various options for compression.
 
 [% methods %]
 
@@ -203,6 +225,8 @@ compression. This can be altered with L</gzip_format> and L</raw>.
 Compress C<$plain>. The type of compression can be set with L</gzip>
 and L</raw>.
 
+[% undefempty('$plain') %] 
+
 [% since('zip','0.16') %]
 
 =head2 unzip
@@ -211,6 +235,8 @@ and L</raw>.
 
 Uncompress C<$zipped>. The type of uncompression can be set with
 L</gzip> and L</raw>.
+
+[% undefempty('$zipped') %] 
 
 [% since('unzip','0.16') %]
 
@@ -250,8 +276,15 @@ name:
 
 [% example('file-name') %]
 
-The module currently has a hard-coded limit of 1024 bytes as the
-maximum length of file name it can read back.
+A potential problem is that [% info.colon %] has a hard-coded limit of
+1024 bytes as the maximum length of file name it can read back. This
+is because a length of some kind is required by zlib, and there is no
+sensible way to negotiate the required length with zlib. Please
+inspect the source code of F<inflate.c> in zlib (line 786 in zlib
+version 1.2.11) for confirmation. If you need longer file names, alter
+the value of the macro C<GF_FILE_NAME_MAX> in the file
+F<gzip-faster-perl.c> in the top level of the distribution and
+recompile the module.
 
 [% since('file_name','0.16') %]
 
@@ -401,6 +434,16 @@ actually smaller than the input.
 In L</copy_perl_flags>, only the utf8 flag is implemented. Possible
 other things which could be implemented are the read-only and the
 taint flags.
+
+As of version [% info.version %], there is no way to read or write the
+OS, comment, or text fields of the gzip header. The "extra" field of
+the gzip header is co-opted by L</copy_perl_flags>. There is no way to
+set the value of the parameter C<memLevel> which controls how much
+memory the compression routines like L</gzip> use.
+
+[% info.colon %] does not offer incremental compression or
+decompression. The other Perl modules listed in L</Alternatives> offer
+these if you require them.
 
 =head2 Browser bugs and Gzip::Faster
 
@@ -630,8 +673,8 @@ data within a PNG image. See L</ACKNOWLEDGEMENTS> for credit.
 
 =head1 GLOSSARY
 
-This section describes some of the terminology of the Gzip compression
-system.
+This section explains some of the terminology of the Gzip/zlib
+compression system.
 
 =over
 

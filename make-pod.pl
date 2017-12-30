@@ -17,7 +17,6 @@ my $xs = "$Bin/Faster.xs";
 
 my %vars;
 
-
 my $tt = Template->new (
     ABSOLUTE => 1,
     FILTERS => {

@@ -149,6 +149,12 @@ my $outname;
 gunzip_file ($filename, file_name => \$outname);
 is ($outname, $filewname, "Retrieved file name from file");
 
+my $filenoname = 'no-name.gz';
+gzip_to_file ($input, $filenoname);
+my $outname2 = 'guff';
+gunzip_file ($filenoname, file_name => \$outname2);
+is ($outname2, undef, "Got undefined value in file name parameter");
+
 # $filename is unlinked below, underneath the check for warnings on
 # not using a scalar reference.
 
@@ -228,6 +234,7 @@ for my $sub (@subs) {
 # Delete  the file now we have used it.
 
 unlink ($filename);
+unlink ($filenoname);
 
 
 done_testing ();
