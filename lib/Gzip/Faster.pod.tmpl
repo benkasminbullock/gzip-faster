@@ -442,8 +442,10 @@ set the value of the parameter C<memLevel> which controls how much
 memory the compression routines like L</gzip> use.
 
 [% info.colon %] does not offer incremental compression or
-decompression. The other Perl modules listed in L</Alternatives> offer
-these if you require them.
+decompression, so it's not suitable for reading and writing very long
+streams of data. Some of the other Perl modules listed in
+L</Alternatives> offer these if you require them. See also
+L</PERFORMANCE>.
 
 =head2 Browser bugs and Gzip::Faster
 
