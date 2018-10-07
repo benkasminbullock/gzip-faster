@@ -24,3 +24,4 @@ do_system ("nxmnpg-module-build.pl $tf");
 do_system ("qrpng-module-build.pl $tf");
 do_system ("./build.pl -i");
 do_system ("./build.pl -i");
+do_system ("./build.pl -i");
