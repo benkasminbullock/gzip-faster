@@ -492,9 +492,6 @@ gunzip_faster (gzip_faster_t * gf)
 	   $gf->file_name. */
 	if (header.name && header.name_max > 0) {
 	    gf->file_name = newSVpv ((const char *) header.name, 0);
-	    /* Add one to the reference count to tell Perl about the
-	       use by gf->file_name. */
-	    SvREFCNT_inc (gf->file_name);
 	}
 
 	/* If the header includes a modification time, copy it into
@@ -504,9 +501,6 @@ gunzip_faster (gzip_faster_t * gf)
 	       here. header.time is uLong in the zlib documentation,
 	       and UV is unsigned int, or something? */
 	    gf->mod_time = newSVuv (header.time);
-	    /* Add one to the reference count to tell Perl about the
-	       use by gf->mod_time. */
-	    SvREFCNT_inc (gf->mod_time);
 	}
 
 	/* Old file names and modification times have been deleted
