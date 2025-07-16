@@ -1,6 +1,6 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.21_01 2025-07-15
+0.22 2025-07-17
 
 * Patch for memory leak
 
