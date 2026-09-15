@@ -54,6 +54,11 @@ format>, which is the same as the gzip format except it has no header
 information. L</deflate_raw> and L</inflate_raw> work with the
 bare-bones version of this format without checksums.
 
+A limitation of the module is that it is designed around the idea of
+keeping the entire input and output in memory, so it is not suitable
+for streaming compressing of huge entities. For these cases I suggest
+piping the stream through the command-line gzip utility.
+
 [% methods = BLOCK %]
 
 If you need to control the compression beyond what is offered by
