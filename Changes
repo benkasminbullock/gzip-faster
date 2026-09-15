@@ -1,5 +1,9 @@
 Revision history for Perl module 'Gzip::Faster'
 
+0.22_01 2026-09-16
+
+* Allow user to limit the size of the gzip file with max_size
+
 0.22 2025-07-17
 
 * Patch for memory leak
