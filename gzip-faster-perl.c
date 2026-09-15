@@ -40,6 +40,8 @@ typedef struct
     SV * file_name;
     /* User-defined modification time. */
     SV * mod_time;
+    /* Maximum length of the output of unzip, or 0 for no limit. */
+    UV max_size;
     /* Gzip, not deflate or inflate. */
     unsigned int is_gzip : 1;
     /* "Raw" inflate or deflate without adler32 check. */
@@ -465,10 +467,19 @@ gunzip_faster (gzip_faster_t * gf)
 	    break;
 	}
 	have = CHUNK - gf->strm.avail_out;
+	if (gf->user_object && gf->max_size &&
+	    (plain ? SvCUR (plain) : 0) + have > gf->max_size) {
+	    inflateEnd (& gf->strm);
+	    if (plain) {
+		SvREFCNT_dec (plain);
+	    }
+	    croak ("Uncompressed data exceeds max_size of %" UVuf " bytes",
+		   gf->max_size);
+	}
 	if (! plain) {
 	    /* If the return value is uninitialised, set up a new
 	       one. */
-	    plain = newSVpv ((const char *) gf->out_buffer, have);
+	    plain = newSVpvn ((const char *) gf->out_buffer, have);
 	}
 	else {
 	    /* If the return value was initialised, append the
@@ -543,6 +554,7 @@ new_user_object (gzip_faster_t * gf)
 {
     gf->file_name = 0;
     gf->mod_time = 0;
+    gf->max_size = 0;
     gf->is_gzip = 1;
     gf->is_raw = 0;
     gf->user_object = 1;
