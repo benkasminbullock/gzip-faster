@@ -42,6 +42,7 @@ WriteMakefile (
     MIN_PERL_VERSION => '5.008001',
     OBJECT => 'Faster.o',
     LIBS => '-lz',
+    CCFLAGS      => $Config{ccflags} . ' -Wno-compound-token-split-by-macro -Wno-macro-redefined ',
 #    OPTIMIZE => '-Wall -g -O',
 );
 
