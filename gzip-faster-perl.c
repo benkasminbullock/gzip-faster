@@ -456,7 +456,7 @@ gunzip_faster (gzip_faster_t * gf)
 	if (! plain) {
 	    /* If the return value is uninitialised, set up a new
 	       one. */
-	    plain = newSVpv ((const char *) gf->out_buffer, have);
+	    plain = newSVpvn ((const char *) gf->out_buffer, have);
 	}
 	else {
 	    /* If the return value was initialised, append the
