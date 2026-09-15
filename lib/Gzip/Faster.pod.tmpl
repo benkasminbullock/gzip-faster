@@ -64,7 +64,8 @@ and L</raw>. A file name can be set and retrieved from the gzip header
 with L</file_name>, and the modification time of the file can be set
 and retrieved with L</mod_time>. The level of compression can be
 altered with L</level>. Perl flags can be copied into the gzip header
-using L</copy_perl_flags>.
+using L</copy_perl_flags>. The size of the output of L</unzip> can be
+limited with L</max_size>.
 
 [% END %]
 [% methods %]
@@ -341,6 +342,17 @@ of seconds since the Unix epoch. This only applies to L</gzip_format>
 compression.
 
 [% since('mod_time','0.19') %]
+
+=head2 max_size
+
+    $gf->max_size (1_000_000);
+
+Limit the output of L</unzip> to a number of bytes. If the
+uncompressed data would be longer, L</unzip> stops and throws a fatal
+error. A value of 0, or no value, removes the limit, which is the
+default. The functions like L</gunzip> are not limited.
+
+[% since('max_size','0.23') %]
 
 =head1 PERFORMANCE
 
