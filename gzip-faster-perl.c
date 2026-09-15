@@ -469,10 +469,7 @@ gunzip_faster (gzip_faster_t * gf)
 	have = CHUNK - gf->strm.avail_out;
 	if (gf->user_object && gf->max_size &&
 	    (plain ? SvCUR (plain) : 0) + have > gf->max_size) {
-	    inflateEnd (& gf->strm);
-	    if (plain) {
-		SvREFCNT_dec (plain);
-	    }
+	    gunzip_fail (gf, plain);
 	    croak ("Uncompressed data exceeds max_size of %" UVuf " bytes",
 		   gf->max_size);
 	}
