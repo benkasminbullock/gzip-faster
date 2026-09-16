@@ -504,6 +504,33 @@ functions from the module using
 (Fatal) The data given to L</gunzip>, L</inflate>, L</inflate_raw>, or
 L</unzip> was not in the compressed format.
 
+=item Out of memory during inflate
+
+(Fatal)
+
+=item Internal error in zlib
+
+(Fatal)
+
+=item Unknown status %d from inflate
+
+(Fatal) zlib returned an error code as given which is not one of the
+known options.
+
+=item Uncompressed data exceeds max_size of %d bytes
+
+(Fatal) The user set a non-zero maximum size with L</max_size> and the
+output exceeded that limit.
+
+=item Zlib did not finish processing the string: %d bytes left
+
+(Fatal) zlib failed to process all of the input buffer.
+
+=item Zlib did not come to the end of the string: zlib_status = %d
+
+(Fatal) zlib finished processing for a reason other than coming to the
+end of the string. The status number reported is from zlib.
+
 =item Error opening '$file': $!
 
 (Fatal) This may be produced by L</gunzip_file>, L</gzip_file>, or
@@ -584,14 +611,6 @@ On Ubuntu Linux, you may need to install C<zlib1g-dev> using the
 following command:
 
     sudo apt-get install zlib1g-dev
-
-=head2 Windows
-
-Unfortunately at this time the module doesn't seem to install on
-ActiveState Perl. You can check the current status at
-L<http://code.activestate.com/ppm/Gzip-Faster/>. However, the module
-seems to install without problems on Strawberry Perl, so if you cannot
-install via ActiveState, you could try that instead.
 
 =head1 SEE ALSO
 
