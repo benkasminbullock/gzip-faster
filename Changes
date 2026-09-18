@@ -1,6 +1,6 @@
 Revision history for Perl module 'Gzip::Faster'
 
-0.22_02 2026-09-17
+0.23 2026-09-18
 
 * Allow user to limit the size of the gzip file with max_size (vividsnow)
 * Remove stale bytes from empty string (vividsnow)
